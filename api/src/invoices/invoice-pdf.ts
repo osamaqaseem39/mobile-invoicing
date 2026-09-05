@@ -1,6 +1,6 @@
 import PDFDocument from "pdfkit";
 import { company, companyAddressLines } from "../common/company";
-import { formatGbp } from "../common/money";
+import { DEFAULT_GBP_TO_EUR_RATE, formatMoney, type PrintCurrency } from "../common/money";
 import { formatDate, labelStatus } from "../common/status";
 import { invoiceTotals } from "../common/invoice";
 import { INVOICE_INVALID_UNTIL_PAID_NOTICE, INVOICE_MARGIN_NOTICE, INVOICE_TERMS } from "../common/invoice-terms";
@@ -42,7 +42,20 @@ export type InvoiceForPdf = {
 const MARGIN = 40;
 const PAGE_WIDTH = 595.28; // A4 pt
 
-export function buildInvoicePdf(invoice: InvoiceForPdf): Promise<Buffer> {
+export type InvoicePdfOptions = {
+  /** Currency the PDF is rendered in. Amounts are stored in GBP. */
+  currency?: PrintCurrency;
+  /** GBP -> EUR rate, used only when currency is EUR. */
+  rate?: number;
+};
+
+export function buildInvoicePdf(
+  invoice: InvoiceForPdf,
+  options: InvoicePdfOptions = {},
+): Promise<Buffer> {
+  const currency = options.currency ?? "GBP";
+  const rate = options.rate && options.rate > 0 ? options.rate : DEFAULT_GBP_TO_EUR_RATE;
+  const money = (gbp: number) => formatMoney(gbp, currency, rate);
   const doc = new PDFDocument({ size: "A4", margin: MARGIN });
   const chunks: Buffer[] = [];
   doc.on("data", (chunk: Buffer) => chunks.push(chunk));
@@ -141,6 +154,7 @@ export function buildInvoicePdf(invoice: InvoiceForPdf): Promise<Buffer> {
     .fillColor("black")
     .text(
       [
+        ...(currency === "EUR" ? [`Exchange rate: 1 GBP = ${rate} EUR`] : []),
         `Payment Terms: ${invoice.paymentTerms || "Immediate"}`,
         `Warranty Terms: ${invoice.warrantyTerms || "3 months"}`,
       ].join("\n"),
@@ -201,8 +215,8 @@ export function buildInvoicePdf(invoice: InvoiceForPdf): Promise<Buffer> {
     doc.text(line.color, cols.color, y, { width: 65 });
     doc.text(line.network, cols.network, y, { width: 65 });
     doc.text(line.grade, cols.grade, y, { width: 35, align: "center" });
-    doc.text(formatGbp(line.unitPriceGbp), cols.price, y, { width: 65, align: "right" });
-    doc.text(formatGbp(line.qty * line.unitPriceGbp), cols.total, y, {
+    doc.text(money(line.unitPriceGbp), cols.price, y, { width: 65, align: "right" });
+    doc.text(money(line.qty * line.unitPriceGbp), cols.total, y, {
       width: PAGE_WIDTH - MARGIN - cols.total,
       align: "right",
     });
@@ -213,8 +227,8 @@ export function buildInvoicePdf(invoice: InvoiceForPdf): Promise<Buffer> {
     const y = doc.y;
     doc.text("1", cols.qty, y, { width: 25 });
     doc.text(invoice.shippingLabel || "Shipping", cols.product, y, { width: 175 });
-    doc.text(formatGbp(invoice.shippingCostGbp), cols.price, y, { width: 65, align: "right" });
-    doc.text(formatGbp(invoice.shippingCostGbp), cols.total, y, {
+    doc.text(money(invoice.shippingCostGbp), cols.price, y, { width: 65, align: "right" });
+    doc.text(money(invoice.shippingCostGbp), cols.total, y, {
       width: PAGE_WIDTH - MARGIN - cols.total,
       align: "right",
     });
@@ -265,27 +279,18 @@ export function buildInvoicePdf(invoice: InvoiceForPdf): Promise<Buffer> {
     });
     sy += bold ? 20 : 16;
   };
-  summaryRow("Subtotal", formatGbp(totals.subGbp));
-  summaryRow("Shipping", formatGbp(totals.shippingGbp));
+  summaryRow("Subtotal", money(totals.subGbp));
+  summaryRow("Shipping", money(totals.shippingGbp));
   doc
     .moveTo(summaryColX, sy)
     .lineTo(summaryColX + summaryColWidth, sy)
     .strokeColor("#94a3b8")
     .stroke();
   sy += 6;
-  summaryRow("Grand Total", formatGbp(totals.totalGbp), true);
-  summaryRow("Payment Due", formatGbp(totals.dueGbp));
+  summaryRow("Grand Total", money(totals.totalGbp), true);
+  summaryRow("Payment Due", money(totals.dueGbp));
 
   doc.y = Math.max(doc.y, sy) + 10;
-
-  if (invoice.notes) {
-    ensureSpace(30);
-    doc.font("Helvetica").fontSize(9).fillColor("#64748b").text(`Notes: ${invoice.notes}`, MARGIN, doc.y, {
-      width: contentWidth,
-    });
-    doc.fillColor("black");
-    doc.moveDown(0.6);
-  }
 
   ensureSpace(30);
   doc.font("Helvetica").fontSize(7).fillColor("#64748b").text(INVOICE_INVALID_UNTIL_PAID_NOTICE, MARGIN, doc.y, {

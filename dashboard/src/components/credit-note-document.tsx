@@ -1,7 +1,7 @@
 import { CompanyBrand } from "@/components/company-brand";
 import { addressLines, company } from "@/lib/company";
 import { formatGbp } from "@/lib/money";
-import { groupRmaSummary, rmaTotals } from "@/lib/rma";
+import { groupRmaSummary, rmaCreditSummary } from "@/lib/rma";
 import { labelStatus } from "@/lib/status";
 import { RMA_TERMS } from "@/lib/terms";
 import { formatDate } from "@/lib/utils";
@@ -16,6 +16,12 @@ export type CreditNoteDoc = {
   notes: string | null;
   invoice: { invoiceNumber: string };
   appliedInvoice: { invoiceNumber: string } | null;
+  payments: {
+    id: string;
+    amountGbp: number;
+    paidAt: Date | string;
+    invoice: { invoiceNumber: string };
+  }[];
   customer: {
     clientId: string;
     name: string;
@@ -44,9 +50,8 @@ export type CreditNoteDoc = {
 };
 
 export function CreditNoteDocument({ rma }: { rma: CreditNoteDoc }) {
-  const totals = rmaTotals(rma);
+  const credit = rmaCreditSummary(rma);
   const summary = groupRmaSummary(rma.items);
-  const due = rma.paymentType === "PENDING" ? totals : { totalGbp: 0 };
   const money = formatGbp;
 
   return (
@@ -86,7 +91,7 @@ export function CreditNoteDocument({ rma }: { rma: CreditNoteDoc }) {
             <th className="py-2 pr-2">Product Name</th>
             <th className="py-2 pr-2">IMEI</th>
             <th className="py-2 pr-2">Colors</th>
-            <th className="py-2 pr-2">Grade</th>
+            <th className="py-2 pr-2 text-center">Grade</th>
             <th className="py-2 text-right">Unit Price</th>
           </tr>
         </thead>
@@ -103,7 +108,7 @@ export function CreditNoteDocument({ rma }: { rma: CreditNoteDoc }) {
               </td>
               <td className="py-2 pr-2 font-mono">{item.stockUnit?.imei ?? item.imei ?? "—"}</td>
               <td className="py-2 pr-2">{item.stockUnit?.color ?? item.color ?? "—"}</td>
-              <td className="py-2 pr-2">{item.stockUnit?.grade ?? item.grade ?? "—"}</td>
+              <td className="py-2 pr-2 text-center">{item.stockUnit?.grade ?? item.grade ?? "—"}</td>
               <td className="py-2 text-right tabular-nums">
                 {money(item.unitPriceGbp)}
               </td>
@@ -117,7 +122,7 @@ export function CreditNoteDocument({ rma }: { rma: CreditNoteDoc }) {
 
       <div className="mt-4 flex justify-end">
         <div className="w-full max-w-sm border-t border-slate-300 py-2 text-right text-base font-semibold">
-          Grand Total: {money(totals.totalGbp)}
+          Grand Total: {money(credit.totalGbp)}
         </div>
       </div>
 
@@ -132,12 +137,52 @@ export function CreditNoteDocument({ rma }: { rma: CreditNoteDoc }) {
         </ul>
       </div>
 
-      <div className="mt-8 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
-        <div>Payment Due: {money(due.totalGbp)}</div>
-        <div>Payment Type: {labelStatus(rma.paymentType)}</div>
-        <div>Payment Date: {rma.paymentDate ? formatDate(rma.paymentDate) : "—"}</div>
-        <div>Payment Amount: {money(rma.paymentAmountGbp)}</div>
-        <div>Invoice Applied: {rma.appliedInvoice?.invoiceNumber ?? "—"}</div>
+      <div className="mt-8">
+        <h2 className="text-sm font-semibold text-slate-900">Credit Summary</h2>
+        <div className="mt-2 flex flex-wrap gap-x-10 gap-y-2 text-sm">
+          <div>
+            <div className="text-xs uppercase tracking-wide text-slate-500">Total amount</div>
+            <div className="font-medium tabular-nums">{money(credit.totalGbp)}</div>
+          </div>
+          <div>
+            <div className="text-xs uppercase tracking-wide text-slate-500">Amount applied</div>
+            <div className="font-medium tabular-nums">{money(credit.appliedGbp)}</div>
+          </div>
+          <div>
+            <div className="text-xs uppercase tracking-wide text-slate-500">Balance remaining</div>
+            <div className="font-semibold tabular-nums">{money(credit.remainingGbp)}</div>
+          </div>
+        </div>
+
+        {rma.payments.length ? (
+          <table className="mt-4 w-full max-w-lg text-left text-sm">
+            <thead>
+              <tr className="border-y border-slate-300 text-xs uppercase tracking-wide text-slate-500">
+                <th className="py-2 pr-2">Date</th>
+                <th className="py-2 pr-2">Applied to invoice</th>
+                <th className="py-2 text-right">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rma.payments.map((payment) => (
+                <tr key={payment.id} className="border-b border-slate-100">
+                  <td className="py-2 pr-2">{formatDate(payment.paidAt)}</td>
+                  <td className="py-2 pr-2">{payment.invoice.invoiceNumber}</td>
+                  <td className="py-2 text-right tabular-nums">{money(payment.amountGbp)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className="mt-3 text-sm text-slate-600">
+            This credit note has not been applied to any invoice yet.
+          </p>
+        )}
+
+        <div className="mt-4 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
+          <div>Payment Type: {labelStatus(rma.paymentType)}</div>
+          <div>Payment Date: {rma.paymentDate ? formatDate(rma.paymentDate) : "—"}</div>
+        </div>
       </div>
 
       {rma.notes ? <p className="mt-6 text-sm text-slate-600">RMA Notes: {rma.notes}</p> : null}

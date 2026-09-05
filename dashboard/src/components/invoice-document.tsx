@@ -2,7 +2,7 @@ import { updateInvoiceLine } from "@/actions/invoices";
 import { CompanyBrand } from "@/components/company-brand";
 import { addressLines, company } from "@/lib/company";
 import { invoiceTotals } from "@/lib/invoice";
-import { formatGbp } from "@/lib/money";
+import { DEFAULT_GBP_TO_EUR_RATE, formatMoney, type PrintCurrency } from "@/lib/money";
 import { INVOICE_INVALID_UNTIL_PAID_NOTICE, INVOICE_MARGIN_NOTICE, INVOICE_TERMS } from "@/lib/terms";
 import { formatDate } from "@/lib/utils";
 import { labelStatus } from "@/lib/status";
@@ -56,14 +56,19 @@ export function InvoiceDocument({
   invoice,
   editable = false,
   lookups,
+  currency = "GBP",
+  rate = DEFAULT_GBP_TO_EUR_RATE,
 }: {
   invoice: InvoiceDoc;
   editable?: boolean;
   lookups?: InvoiceDocLookups;
+  currency?: PrintCurrency;
+  rate?: number;
 }) {
   const totals = invoiceTotals(invoice);
   const hasShipping = invoice.shippingCostGbp > 0;
-  const money = formatGbp;
+  // Amounts are stored in GBP; EUR is a print-time conversion at the entered rate.
+  const money = (gbp: number) => formatMoney(gbp, currency, rate);
 
   return (
     <div className="mx-auto max-w-[210mm] bg-white p-8 text-slate-900 print:p-0">
@@ -118,6 +123,7 @@ export function InvoiceDocument({
           </div>
         </div>
         <div className="text-sm text-slate-600">
+          {currency === "EUR" ? <div>Exchange rate: 1 GBP = {rate} EUR</div> : null}
           <div>Payment Terms: {invoice.paymentTerms || "Immediate"}</div>
           <div>Warranty Terms: {invoice.warrantyTerms || "3 months"}</div>
         </div>
@@ -218,14 +224,17 @@ export function InvoiceDocument({
                   ) : null}
                 </td>
                 <td className="py-1 pr-2 text-right tabular-nums">
-                  <input
-                    form={`line-${line.id}`}
-                    name="unitPriceGbp"
-                    type="number"
-                    step="0.01"
-                    defaultValue={line.unitPriceGbp}
-                    className={`${editableCellClass} text-right`}
-                  />
+                  <div className="flex items-center justify-end gap-0.5">
+                    <span className="text-slate-500">£</span>
+                    <input
+                      form={`line-${line.id}`}
+                      name="unitPriceGbp"
+                      type="number"
+                      step="0.01"
+                      defaultValue={line.unitPriceGbp}
+                      className={`${editableCellClass} text-right`}
+                    />
+                  </div>
                 </td>
                 <td className="py-2 text-right tabular-nums">
                   {money(line.qty * line.unitPriceGbp)}
@@ -317,8 +326,13 @@ export function InvoiceDocument({
         </div>
       </div>
 
-      {invoice.notes ? (
-        <p className="mt-8 text-sm text-slate-600">Notes: {invoice.notes}</p>
+      {editable && invoice.notes ? (
+        <div className="no-print mt-8 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            Internal note · not shown on the invoice
+          </div>
+          <p className="mt-1">{invoice.notes}</p>
+        </div>
       ) : null}
 
       <p className="mt-6 text-xs text-slate-500">{INVOICE_INVALID_UNTIL_PAID_NOTICE}</p>

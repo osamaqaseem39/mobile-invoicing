@@ -14,8 +14,8 @@ import { requireUser } from "@/lib/auth-guard";
 import { formatGbp } from "@/lib/money";
 import { formatDate } from "@/lib/utils";
 import { apiClient, ApiError } from "@/lib/api-client";
-import { rmaRemainingCredit, rmaTotals } from "@/lib/rma";
-import { RMA_PAYMENT_TYPES, RMA_STATUSES } from "@/lib/status";
+import { rmaCreditSummary } from "@/lib/rma";
+import { labelStatus, RMA_PAYMENT_TYPES, RMA_STATUSES } from "@/lib/status";
 
 type RmaDetail = {
   id: string;
@@ -69,8 +69,8 @@ export default async function RmaDetailPage({
     throw err;
   }
 
-  const totals = rmaTotals(rma);
-  const remainingGbp = rmaRemainingCredit(rma);
+  const credit = rmaCreditSummary(rma);
+  const remainingGbp = credit.remainingGbp;
   const invoices = (await apiClient.get<InvoiceOption[]>("/invoices", apiToken)).slice(0, 100);
 
   return (
@@ -99,9 +99,41 @@ export default async function RmaDetailPage({
             {rma.invoice.invoiceNumber}
           </Link>
         </p>
-        <p className="mt-2 text-sm font-medium">
-          Credit value: {formatGbp(totals.totalGbp)} · Remaining: {formatGbp(remainingGbp)}
-        </p>
+        <dl className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-800/50">
+            <dt className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              Total amount
+            </dt>
+            <dd className="mt-1 text-lg font-semibold tabular-nums">
+              {formatGbp(credit.totalGbp)}
+            </dd>
+          </div>
+          <div className="rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-800/50">
+            <dt className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              Amount applied
+            </dt>
+            <dd className="mt-1 text-lg font-semibold tabular-nums">
+              {formatGbp(credit.appliedGbp)}
+            </dd>
+          </div>
+          <div className="rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-800/50">
+            <dt className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              Balance remaining
+            </dt>
+            <dd
+              className={`mt-1 text-lg font-semibold tabular-nums ${
+                credit.availableGbp > 0 ? "text-[#0b3a6e] dark:text-sky-400" : "text-slate-500"
+              }`}
+            >
+              {formatGbp(credit.remainingGbp)}
+            </dd>
+            {credit.settled && credit.remainingGbp > 0 ? (
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                Marked {labelStatus(rma.paymentType)} — this balance can no longer be applied.
+              </p>
+            ) : null}
+          </div>
+        </dl>
       </Card>
       <Card>
         <Table>

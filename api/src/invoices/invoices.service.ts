@@ -3,7 +3,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { nextNumberTx } from "../common/numbers";
 import { rmaRemainingCredit } from "../common/rma";
 import { invoiceTotals } from "../common/invoice";
-import { formatGbp } from "../common/money";
+import { formatMoney, resolvePrintCurrency } from "../common/money";
 import { buildEvenInstallments, recordPaymentTx, updatePaymentTx } from "../common/payments";
 import { MailService } from "../mail/mail.service";
 import { buildInvoicePdf } from "./invoice-pdf";
@@ -168,17 +168,28 @@ export class InvoicesService {
         }
       }
 
-      const appliedRmaIds = (input.appliedRmaIds ?? []).filter(Boolean);
-      for (const rmaId of appliedRmaIds) {
+      // Either shape is accepted: bare ids apply the whole balance, pairs apply a part-amount.
+      const requestedCredits = [
+        ...(input.appliedRmaCredits ?? []).filter((credit) => credit?.rmaId),
+        ...(input.appliedRmaIds ?? [])
+          .filter(Boolean)
+          .map((rmaId) => ({ rmaId, amountGbp: undefined })),
+      ];
+      const seenRmaIds = new Set<string>();
+      for (const credit of requestedCredits) {
+        if (seenRmaIds.has(credit.rmaId)) continue;
+        seenRmaIds.add(credit.rmaId);
         const rma = await tx.rma.findUnique({
-          where: { id: rmaId },
+          where: { id: credit.rmaId },
           include: { items: true, payments: true },
         });
         if (!rma || rma.customerId !== customerId || rma.paymentType !== "PENDING") continue;
         const remaining = rmaRemainingCredit(rma);
         if (remaining <= 0) continue;
+        const requested = Number(credit.amountGbp);
+        const amountGbp = requested > 0 ? Math.min(requested, remaining) : remaining;
         await recordPaymentTx(tx, created.id, {
-          amountGbp: remaining,
+          amountGbp,
           rmaId: rma.id,
           method: "RMA credit",
         });
@@ -380,15 +391,17 @@ export class InvoicesService {
       );
     }
 
-    const pdf = await buildInvoicePdf(invoice);
+    const { currency, rate } = resolvePrintCurrency(dto.currency, dto.rate);
+    const pdf = await buildInvoicePdf(invoice, { currency, rate });
     const totals = invoiceTotals(invoice);
+    const money = (gbp: number) => formatMoney(gbp, currency, rate);
 
     const html = `
       <p>Dear ${invoice.customer.name},</p>
       <p>Please find attached your invoice <strong>${invoice.invoiceNumber}</strong>.</p>
       <p>
-        Grand total: <strong>${formatGbp(totals.totalGbp)}</strong><br />
-        Payment due: <strong>${formatGbp(totals.dueGbp)}</strong>
+        Grand total: <strong>${money(totals.totalGbp)}</strong><br />
+        Payment due: <strong>${money(totals.dueGbp)}</strong>
       </p>
       ${dto.message ? `<p>${dto.message.replace(/\n/g, "<br />")}</p>` : ""}
       <p>Thank you for your business.</p>

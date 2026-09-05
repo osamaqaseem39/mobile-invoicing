@@ -30,7 +30,7 @@ import { getLookups } from "@/lib/lookups";
 import { invoiceTotals } from "@/lib/invoice";
 import { formatGbp } from "@/lib/money";
 import { formatDate } from "@/lib/utils";
-import { rmaRemainingCredit } from "@/lib/rma";
+import { rmaCreditSummary } from "@/lib/rma";
 import { INVOICE_STATUSES } from "@/lib/status";
 
 const PAYMENT_METHODS = ["Manual", "Bank transfer", "Cash", "Card", "Other"];
@@ -303,7 +303,7 @@ export default async function InvoiceDetailPage({
               invoices.
             </p>
             {availableCredits.map((credit) => {
-              const remainingGbp = rmaRemainingCredit(credit);
+              const { totalGbp, appliedGbp, remainingGbp } = rmaCreditSummary(credit);
               const suggested = Math.min(remainingGbp, totals.dueGbp);
               return (
                 <form
@@ -314,10 +314,14 @@ export default async function InvoiceDetailPage({
                   <input type="hidden" name="invoiceId" value={invoice.id} />
                   <input type="hidden" name="rmaId" value={credit.id} />
                   <p className="text-sm">
-                    {credit.rmaNumber} — {formatGbp(remainingGbp)} remaining
+                    {credit.rmaNumber}
                     <span className="text-slate-500 dark:text-slate-400">
                       {" "}
                       (from Invoice {credit.invoice.invoiceNumber})
+                    </span>
+                    <span className="block text-xs text-slate-500 dark:text-slate-400">
+                      {formatGbp(totalGbp)} total · {formatGbp(appliedGbp)} applied ·{" "}
+                      {formatGbp(remainingGbp)} remaining
                     </span>
                   </p>
                   <div>

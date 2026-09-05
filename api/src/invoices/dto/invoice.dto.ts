@@ -46,6 +46,17 @@ class InvoiceLineDto {
   imeis?: string[];
 }
 
+class AppliedRmaCreditDto {
+  @IsString()
+  rmaId: string;
+
+  /** Omit to apply the credit note's whole remaining balance. */
+  @IsOptional()
+  @IsNumber()
+  @Min(0.01)
+  amountGbp?: number;
+}
+
 export class CreateInvoiceDto {
   @IsString()
   customerId: string;
@@ -83,6 +94,13 @@ export class CreateInvoiceDto {
   @IsArray()
   @IsString({ each: true })
   appliedRmaIds?: string[];
+
+  /** Credit notes to apply, each with an optional part-amount (defaults to its full balance). */
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AppliedRmaCreditDto)
+  appliedRmaCredits?: AppliedRmaCreditDto[];
 
   @IsOptional()
   @IsNumber()
@@ -172,6 +190,17 @@ export class SendInvoiceEmailDto {
   @IsOptional()
   @IsString()
   message?: string;
+
+  /** Currency the attached PDF is rendered in. Defaults to GBP. */
+  @IsOptional()
+  @IsIn(["GBP", "EUR"])
+  currency?: "GBP" | "EUR";
+
+  /** GBP -> EUR conversion rate, required in practice when currency is EUR. */
+  @IsOptional()
+  @IsNumber()
+  @Min(0.0001)
+  rate?: number;
 }
 
 export class RecordPaymentDto {

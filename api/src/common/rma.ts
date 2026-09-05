@@ -13,6 +13,32 @@ export function rmaRemainingCredit(rma: {
   return roundMoney(rmaTotals(rma).totalGbp - consumedGbp);
 }
 
+/**
+ * The three figures shown against every credit note: what it is worth, how much
+ * has been applied to invoices so far, and what is left to spend.
+ */
+export function rmaCreditSummary(rma: {
+  items: { unitPriceGbp: number }[];
+  payments: { amountGbp: number }[];
+  paymentType?: string;
+}) {
+  const totalGbp = rmaTotals(rma).totalGbp;
+  const appliedGbp = roundMoney(rma.payments.reduce((sum, payment) => sum + payment.amountGbp, 0));
+  const remainingGbp = roundMoney(totalGbp - appliedGbp);
+  // Only a PENDING credit can still be spent — recordPaymentTx and the credit
+  // pickers both refuse anything else, so a settled note's balance is not available
+  // even when its payment rows don't add up to its total (older administrative
+  // status changes closed a credit without recording a payment).
+  const settled = rma.paymentType !== undefined && rma.paymentType !== "PENDING";
+  return {
+    totalGbp,
+    appliedGbp,
+    remainingGbp,
+    settled,
+    availableGbp: settled ? 0 : Math.max(remainingGbp, 0),
+  };
+}
+
 export function groupRmaSummary(
   items: {
     stockUnit: { productName: string; color: string; grade: string } | null;

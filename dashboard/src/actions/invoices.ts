@@ -41,7 +41,15 @@ function parseInvoiceLines(formData: FormData) {
 export async function createInvoice(formData: FormData) {
   const { apiToken } = await requireUser();
   const lines = parseInvoiceLines(formData);
-  const appliedRmaIds = formData.getAll("appliedRmaIds").map(String).filter(Boolean);
+  // Each ticked credit note carries its own amount box, so a credit can be applied in part.
+  const appliedRmaCredits = formData
+    .getAll("appliedRmaIds")
+    .map(String)
+    .filter(Boolean)
+    .map((rmaId) => ({
+      rmaId,
+      amountGbp: toOptionalNumber(formData.get(`appliedRmaAmount-${rmaId}`)),
+    }));
 
   let invoice: { id: string };
   try {
@@ -56,7 +64,7 @@ export async function createInvoice(formData: FormData) {
         warrantyTerms: toOptionalString(formData.get("warrantyTerms")),
         notes: toOptionalString(formData.get("notes")),
         marginVatScheme: formData.get("marginVatScheme") === "on",
-        appliedRmaIds,
+        appliedRmaCredits,
         initialPaymentGbp: toOptionalNumber(formData.get("initialPaymentGbp")),
         installmentCount:
           formData.get("installmentPlanEnabled") === "on"
@@ -206,27 +214,41 @@ export async function addInvoiceLine(formData: FormData) {
   redirect(`/invoices/${id}?ok=Line added`);
 }
 
+/** Appends a query param, preserving any the caller already put on the path. */
+function withParam(path: string, key: string, value: string) {
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}${key}=${encodeURIComponent(value)}`;
+}
+
 export async function sendInvoiceEmail(formData: FormData) {
   const { apiToken } = await requireUser();
   const id = String(formData.get("id") ?? "");
   const email = toOptionalString(formData.get("email"));
   const returnTo = String(formData.get("returnTo") ?? `/invoices/${id}`);
+  const currency = formData.get("currency") === "EUR" ? "EUR" : "GBP";
+  const rate = Number(formData.get("rate"));
 
   let result: { sentTo: string };
   try {
     result = await apiClient.post<{ sentTo: string }>(
       `/invoices/${id}/send-email`,
-      { email },
+      currency === "EUR" && rate > 0 ? { email, currency, rate } : { email },
       apiToken,
     );
   } catch (err) {
     if (err instanceof ApiError) {
-      redirect(`${returnTo}?error=${encodeURIComponent(err.message)}`);
+      redirect(withParam(returnTo, "error", err.message));
     }
     throw err;
   }
 
-  redirect(`${returnTo}?ok=${encodeURIComponent(`Invoice emailed to ${result.sentTo}`)}`);
+  redirect(
+    withParam(
+      returnTo,
+      "ok",
+      `Invoice emailed to ${result.sentTo}${currency === "EUR" ? " in EUR" : ""}`,
+    ),
+  );
 }
 
 export async function recordInvoicePayment(formData: FormData) {

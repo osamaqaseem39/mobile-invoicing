@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { formatGbp } from "@/lib/money";
-import { rmaRemainingCredit } from "@/lib/rma";
+import { rmaCreditSummary } from "@/lib/rma";
 
 type Lookup = { id: string; name?: string; code?: string };
 
@@ -212,29 +212,59 @@ export function InvoiceForm({
         }}
       />
       {credits.length ? (
-        <div className="space-y-2 rounded-xl border border-slate-200 p-4 dark:border-slate-800">
-          <h2 className="font-medium">Available RMA credit</h2>
+        <div className="space-y-3 rounded-xl border border-slate-200 p-4 dark:border-slate-800">
+          <h2 className="font-medium">Available credit notes</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Tick a credit note to apply it to this invoice. The full balance is applied by
+            default — lower the amount to apply only part of it and leave the rest for a later
+            invoice.
+          </p>
           {credits.map((credit) => {
-            const remainingGbp = rmaRemainingCredit(credit);
+            const { totalGbp, appliedGbp, remainingGbp } = rmaCreditSummary(credit);
             const checked = selectedCreditIds.includes(credit.id);
             return (
-              <label key={credit.id} className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  name="appliedRmaIds"
-                  value={credit.id}
-                  checked={checked}
-                  onChange={(event) =>
-                    setSelectedCreditIds((current) =>
-                      event.target.checked
-                        ? [...current, credit.id]
-                        : current.filter((id) => id !== credit.id),
-                    )
-                  }
-                />
-                {credit.rmaNumber} — {formatGbp(remainingGbp)} remaining · from Invoice{" "}
-                {credit.invoice.invoiceNumber}
-              </label>
+              <div
+                key={credit.id}
+                className="flex flex-wrap items-end gap-3 border-t border-slate-100 pt-3 first:border-0 first:pt-0 dark:border-slate-800"
+              >
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    name="appliedRmaIds"
+                    value={credit.id}
+                    checked={checked}
+                    onChange={(event) =>
+                      setSelectedCreditIds((current) =>
+                        event.target.checked
+                          ? [...current, credit.id]
+                          : current.filter((id) => id !== credit.id),
+                      )
+                    }
+                  />
+                  <span>
+                    {credit.rmaNumber} · from Invoice {credit.invoice.invoiceNumber}
+                    <span className="block text-xs text-slate-500 dark:text-slate-400">
+                      {formatGbp(totalGbp)} total · {formatGbp(appliedGbp)} applied ·{" "}
+                      {formatGbp(remainingGbp)} remaining
+                    </span>
+                  </span>
+                </label>
+                {checked ? (
+                  <div>
+                    <Label htmlFor={`credit-amount-${credit.id}`}>Amount to apply £</Label>
+                    <Input
+                      id={`credit-amount-${credit.id}`}
+                      name={`appliedRmaAmount-${credit.id}`}
+                      type="number"
+                      step="0.01"
+                      min={0.01}
+                      max={remainingGbp}
+                      defaultValue={remainingGbp}
+                      className="w-40"
+                    />
+                  </div>
+                ) : null}
+              </div>
             );
           })}
         </div>
