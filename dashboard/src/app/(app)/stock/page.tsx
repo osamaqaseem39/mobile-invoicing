@@ -81,7 +81,7 @@ export default async function StockPage({
               <Th>Product</Th>
               <Th>Color</Th>
               <Th>Network</Th>
-              <Th>Grade</Th>
+              <Th className="text-center">Grade</Th>
               <Th>Cost</Th>
               <Th>Status</Th>
               <Th>Supplier</Th>
@@ -108,7 +108,7 @@ export default async function StockPage({
                 <Td>{unit.productName}</Td>
                 <Td>{unit.color}</Td>
                 <Td>{unit.network}</Td>
-                <Td>{unit.grade}</Td>
+                <Td className="text-center">{unit.grade}</Td>
                 <Td>{formatGbp(unit.costGbp)}</Td>
                 <Td>
                   <StatusBadge status={unit.status} />

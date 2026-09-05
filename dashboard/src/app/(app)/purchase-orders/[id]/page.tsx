@@ -100,7 +100,7 @@ export default async function PurchaseOrderDetailPage({
             <tr>
               <Th>IMEI</Th>
               <Th>Product</Th>
-              <Th>Grade</Th>
+              <Th className="text-center">Grade</Th>
               <Th>Status</Th>
             </tr>
           </THead>
@@ -109,7 +109,7 @@ export default async function PurchaseOrderDetailPage({
               <tr key={unit.id}>
                 <Td className="font-mono">{unit.imei ?? "—"}</Td>
                 <Td>{unit.productName}</Td>
-                <Td>{unit.grade}</Td>
+                <Td className="text-center">{unit.grade}</Td>
                 <Td>
                   <StatusBadge status={unit.status} />
                 </Td>
