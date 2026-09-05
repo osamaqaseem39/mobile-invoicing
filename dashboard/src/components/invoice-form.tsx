@@ -9,9 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { GoodsNotReceivedWarning } from "@/components/goods-not-received-warning";
 import { Textarea } from "@/components/ui/textarea";
 import { formatGbp } from "@/lib/money";
-import { rmaCreditSummary } from "@/lib/rma";
+import { rmaCreditSummary, rmaGoodsReceived } from "@/lib/rma";
 
 type Lookup = { id: string; name?: string; code?: string };
 
@@ -247,6 +248,9 @@ export function InvoiceForm({
                       {formatGbp(totalGbp)} total · {formatGbp(appliedGbp)} applied ·{" "}
                       {formatGbp(remainingGbp)} remaining
                     </span>
+                    {rmaGoodsReceived(credit) ? null : (
+                      <GoodsNotReceivedWarning />
+                    )}
                   </span>
                 </label>
                 {checked ? (

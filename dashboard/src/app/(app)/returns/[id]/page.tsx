@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { applyRmaCredit, processRma } from "@/actions/rma";
+import { GoodsNotReceivedWarning } from "@/components/goods-not-received-warning";
 import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
@@ -14,7 +15,7 @@ import { requireUser } from "@/lib/auth-guard";
 import { formatGbp } from "@/lib/money";
 import { formatDate } from "@/lib/utils";
 import { apiClient, ApiError } from "@/lib/api-client";
-import { rmaCreditSummary } from "@/lib/rma";
+import { rmaCreditSummary, rmaGoodsReceived } from "@/lib/rma";
 import { labelStatus, RMA_PAYMENT_TYPES, RMA_STATUSES } from "@/lib/status";
 
 type RmaDetail = {
@@ -188,6 +189,7 @@ export default async function RmaDetailPage({
       </Card>
       <Card>
         <h2 className="mb-3 font-medium">Apply credit</h2>
+        {rmaGoodsReceived(rma) ? null : <GoodsNotReceivedWarning variant="block" />}
         <form action={applyRmaCredit} className="space-y-3">
           <input type="hidden" name="rmaId" value={rma.id} />
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

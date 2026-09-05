@@ -14,6 +14,7 @@ import {
 import { applyRmaCreditToInvoice, getAvailableRmaCredits } from "@/actions/rma";
 import { EmailInvoiceForm } from "@/components/email-invoice-form";
 import { InvoiceDocument } from "@/components/invoice-document";
+import { GoodsNotReceivedWarning } from "@/components/goods-not-received-warning";
 import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,7 @@ import { getLookups } from "@/lib/lookups";
 import { invoiceTotals } from "@/lib/invoice";
 import { formatGbp } from "@/lib/money";
 import { formatDate } from "@/lib/utils";
-import { rmaCreditSummary } from "@/lib/rma";
+import { rmaCreditSummary, rmaGoodsReceived } from "@/lib/rma";
 import { INVOICE_STATUSES } from "@/lib/status";
 
 const PAYMENT_METHODS = ["Manual", "Bank transfer", "Cash", "Card", "Other"];
@@ -323,6 +324,7 @@ export default async function InvoiceDetailPage({
                       {formatGbp(totalGbp)} total · {formatGbp(appliedGbp)} applied ·{" "}
                       {formatGbp(remainingGbp)} remaining
                     </span>
+                    {rmaGoodsReceived(credit) ? null : <GoodsNotReceivedWarning />}
                   </p>
                   <div>
                     <Label>Amount £</Label>

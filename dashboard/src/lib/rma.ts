@@ -45,6 +45,17 @@ export function rmaCreditSummary(rma: {
   };
 }
 
+/**
+ * Statuses that mean the returned goods are physically back and inspected —
+ * processRma only restocks (or writes off) units at these points. Credit can be
+ * applied before this, which is a deliberate choice, so the UI warns instead of blocking.
+ */
+const GOODS_BACK_STATUSES = ["RECEIVED", "REFUNDED", "CLOSED"];
+
+export function rmaGoodsReceived(rma: { status: string }) {
+  return GOODS_BACK_STATUSES.includes(rma.status);
+}
+
 export function groupRmaSummary(
   items: {
     stockUnit: { productName: string; color: string; grade: string } | null;

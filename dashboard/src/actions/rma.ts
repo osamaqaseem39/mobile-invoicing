@@ -10,6 +10,7 @@ import { rmaRemainingCredit } from "@/lib/rma";
 export type AvailableRmaCredit = {
   id: string;
   rmaNumber: string;
+  status: string;
   invoice: { invoiceNumber: string };
   items: { unitPriceGbp: number }[];
   payments: { amountGbp: number }[];
