@@ -67,16 +67,14 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <div className="text-xs font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400">
+        <div className="text-theme-xs font-medium uppercase tracking-wider text-gray-400">
           Dashboard
         </div>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100">
+        <h1 className="mt-1 text-title-sm font-bold text-gray-800 dark:text-white/90">
           {greeting()},{" "}
-          <span className="bg-gradient-to-r from-[#0b3a6e] to-sky-500 bg-clip-text text-transparent dark:from-sky-300 dark:to-blue-400">
-            {firstName}
-          </span>
+          <span className="text-brand-500 dark:text-brand-400">{firstName}</span>
         </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <p className="mt-1 text-theme-sm text-gray-500 dark:text-gray-400">
           Here&apos;s what&apos;s happening across stock, invoices, and suppliers today.
         </p>
       </div>
@@ -95,8 +93,8 @@ export default async function DashboardPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <h2 className="mb-3 flex items-center gap-2 font-semibold text-slate-900 dark:text-slate-100">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-sky-400 to-blue-600 text-white shadow-sm shadow-sky-500/30">
+          <h2 className="mb-4 flex items-center gap-2.5 font-semibold text-gray-800 dark:text-white/90">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">
               <Layers className="h-3.5 w-3.5" />
             </span>
             In stock by grade
@@ -106,7 +104,7 @@ export default async function DashboardPage() {
               stockCounts.map((row) => (
                 <div
                   key={row.grade}
-                  className="flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1.5 text-sm text-sky-800 ring-1 ring-sky-100 dark:bg-sky-950/40 dark:text-sky-400 dark:ring-sky-900"
+                  className="flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1.5 text-theme-sm text-brand-500 dark:bg-brand-500/15 dark:text-brand-400"
                 >
                   <span className="text-slate-500 dark:text-slate-400">Grade {row.grade}</span>
                   <span className="font-semibold">{row._count._all}</span>
@@ -118,8 +116,8 @@ export default async function DashboardPage() {
           </div>
         </Card>
         <Card>
-          <h2 className="mb-3 flex items-center gap-2 font-semibold text-slate-900 dark:text-slate-100">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-sm shadow-amber-500/30">
+          <h2 className="mb-4 flex items-center gap-2.5 font-semibold text-gray-800 dark:text-white/90">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400">
               <Clock3 className="h-3.5 w-3.5" />
             </span>
             Awaiting payment
@@ -128,7 +126,7 @@ export default async function DashboardPage() {
             <ul className="divide-y divide-slate-100 dark:divide-slate-800">
               {unpaid.map((invoice) => (
                 <li key={invoice.id} className="flex items-center justify-between gap-3 py-2 first:pt-0 last:pb-0">
-                  <Link className="text-sm font-medium text-[#0b3a6e] hover:underline dark:text-sky-400" href={`/invoices/${invoice.id}`}>
+                  <Link className="text-sm font-medium text-brand-500 hover:underline dark:text-sky-400" href={`/invoices/${invoice.id}`}>
                     {invoice.invoiceNumber} · {invoice.customer.name}
                   </Link>
                   <StatusBadge status={invoice.status} />
@@ -144,7 +142,7 @@ export default async function DashboardPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="p-0">
           <h2 className="flex items-center gap-2 px-5 pt-5 font-semibold text-slate-900 dark:text-slate-100">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-violet-400 to-purple-600 text-white shadow-sm shadow-violet-500/30">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-50 text-violet-600 dark:bg-violet-500/15 dark:text-violet-400">
               <Package className="h-3.5 w-3.5" />
             </span>
             Recent purchase orders
@@ -161,7 +159,7 @@ export default async function DashboardPage() {
               <tbody>
                 {recentPos.map((po) => (
                   <ClickableRow key={po.id} href={`/purchase-orders/${po.id}`}>
-                    <Td className="font-medium text-[#0b3a6e] dark:text-sky-400">{po.poNumber}</Td>
+                    <Td className="font-medium text-brand-500 dark:text-sky-400">{po.poNumber}</Td>
                     <Td>{po.supplier.name}</Td>
                     <Td>
                       <StatusBadge status={po.status} />
@@ -195,7 +193,7 @@ export default async function DashboardPage() {
         </Card>
         <Card className="p-0">
           <h2 className="flex items-center gap-2 px-5 pt-5 font-semibold text-slate-900 dark:text-slate-100">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-sm shadow-emerald-500/30">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-500">
               <Receipt className="h-3.5 w-3.5" />
             </span>
             Recent invoices
@@ -212,7 +210,7 @@ export default async function DashboardPage() {
               <tbody>
                 {recentInvoices.map((invoice) => (
                   <ClickableRow key={invoice.id} href={`/invoices/${invoice.id}`}>
-                    <Td className="font-medium text-[#0b3a6e] dark:text-sky-400">{invoice.invoiceNumber}</Td>
+                    <Td className="font-medium text-brand-500 dark:text-sky-400">{invoice.invoiceNumber}</Td>
                     <Td>{invoice.customer.name}</Td>
                     <Td>{formatDate(invoice.issuedAt)}</Td>
                   </ClickableRow>

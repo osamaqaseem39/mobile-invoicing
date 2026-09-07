@@ -56,7 +56,7 @@ export default async function ShipmentDetailPage({
         <div className="mb-4 grid gap-3 sm:grid-cols-2 text-sm">
           <div>
             Invoice:{" "}
-            <Link className="text-[#0b3a6e] hover:underline" href={`/invoices/${shipment.invoiceId}`}>
+            <Link className="text-brand-500 hover:underline" href={`/invoices/${shipment.invoiceId}`}>
               {shipment.invoice.invoiceNumber}
             </Link>
           </div>

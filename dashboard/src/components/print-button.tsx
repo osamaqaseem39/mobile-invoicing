@@ -5,7 +5,7 @@ export function PrintButton() {
     <button
       type="button"
       onClick={() => window.print()}
-      className="h-10 rounded-lg bg-[#0b3a6e] px-4 text-sm font-medium text-white"
+      className="h-11 rounded-lg bg-brand-500 px-4 text-theme-sm font-medium text-white shadow-theme-xs transition-colors hover:bg-brand-600"
     >
       Print invoice
     </button>

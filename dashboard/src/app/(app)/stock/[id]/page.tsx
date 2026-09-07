@@ -57,7 +57,7 @@ export default async function StockUnitPage({
           <div className="text-xs text-slate-500 dark:text-slate-400">Linked invoice</div>
           <div className="mt-1 font-medium">
             {unit.invoice ? (
-              <Link className="text-[#0b3a6e] hover:underline dark:text-sky-400" href={`/invoices/${unit.invoice.id}`}>
+              <Link className="text-brand-500 hover:underline dark:text-sky-400" href={`/invoices/${unit.invoice.id}`}>
                 {unit.invoice.invoiceNumber}
               </Link>
             ) : (

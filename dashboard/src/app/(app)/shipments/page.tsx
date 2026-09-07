@@ -49,7 +49,7 @@ export default async function ShipmentsPage() {
             {shipments.map((shipment) => (
               <tr key={shipment.id}>
                 <Td>
-                  <Link className="font-medium text-[#0b3a6e] hover:underline dark:text-sky-400" href={`/shipments/${shipment.id}`}>
+                  <Link className="font-medium text-brand-500 hover:underline dark:text-sky-400" href={`/shipments/${shipment.id}`}>
                     {shipment.shipmentNumber}
                   </Link>
                 </Td>

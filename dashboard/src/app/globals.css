@@ -2,35 +2,173 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * TailAdmin design tokens.
+ *
+ * The brand/gray/status ramps below are TailAdmin's. The stock Tailwind
+ * palettes the app already uses (slate/gray for neutrals, sky/blue for the
+ * accent, emerald/amber/red for status) are re-pointed at those ramps so every
+ * existing utility class renders in the TailAdmin palette.
+ */
+@theme {
+  --color-brand-25: #f2f7ff;
+  --color-brand-50: #ecf3ff;
+  --color-brand-100: #dde9ff;
+  --color-brand-200: #c2d6ff;
+  --color-brand-300: #9cb9ff;
+  --color-brand-400: #7592ff;
+  --color-brand-500: #465fff;
+  --color-brand-600: #3641f5;
+  --color-brand-700: #2a31d8;
+  --color-brand-800: #252dae;
+  --color-brand-900: #262e89;
+  --color-brand-950: #161950;
+
+  /* Neutrals — TailAdmin gray */
+  --color-slate-50: #f9fafb;
+  --color-slate-100: #f2f4f7;
+  --color-slate-200: #e4e7ec;
+  --color-slate-300: #d0d5dd;
+  --color-slate-400: #98a2b3;
+  --color-slate-500: #667085;
+  --color-slate-600: #475467;
+  --color-slate-700: #344054;
+  --color-slate-800: #1d2939;
+  --color-slate-900: #101828;
+  --color-slate-950: #0c111d;
+
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f2f4f7;
+  --color-gray-200: #e4e7ec;
+  --color-gray-300: #d0d5dd;
+  --color-gray-400: #98a2b3;
+  --color-gray-500: #667085;
+  --color-gray-600: #475467;
+  --color-gray-700: #344054;
+  --color-gray-800: #1d2939;
+  --color-gray-900: #101828;
+  --color-gray-950: #0c111d;
+  --color-gray-dark: #1a2231;
+
+  /* Accent — TailAdmin brand */
+  --color-sky-50: #ecf3ff;
+  --color-sky-100: #dde9ff;
+  --color-sky-200: #c2d6ff;
+  --color-sky-300: #9cb9ff;
+  --color-sky-400: #7592ff;
+  --color-sky-500: #465fff;
+  --color-sky-600: #3641f5;
+  --color-sky-700: #2a31d8;
+  --color-sky-800: #252dae;
+  --color-sky-900: #262e89;
+  --color-sky-950: #161950;
+
+  --color-blue-50: #ecf3ff;
+  --color-blue-100: #dde9ff;
+  --color-blue-200: #c2d6ff;
+  --color-blue-300: #9cb9ff;
+  --color-blue-400: #7592ff;
+  --color-blue-500: #465fff;
+  --color-blue-600: #3641f5;
+  --color-blue-700: #2a31d8;
+  --color-blue-800: #252dae;
+  --color-blue-900: #262e89;
+  --color-blue-950: #161950;
+
+  /* Success */
+  --color-emerald-50: #ecfdf3;
+  --color-emerald-100: #d1fadf;
+  --color-emerald-200: #a6f4c5;
+  --color-emerald-300: #6ce9a6;
+  --color-emerald-400: #32d583;
+  --color-emerald-500: #12b76a;
+  --color-emerald-600: #039855;
+  --color-emerald-700: #027a48;
+  --color-emerald-800: #05603a;
+  --color-emerald-900: #054f31;
+  --color-emerald-950: #053321;
+
+  /* Warning */
+  --color-amber-50: #fffaeb;
+  --color-amber-100: #fef0c7;
+  --color-amber-200: #fedf89;
+  --color-amber-300: #fec84b;
+  --color-amber-400: #fdb022;
+  --color-amber-500: #f79009;
+  --color-amber-600: #dc6803;
+  --color-amber-700: #b54708;
+  --color-amber-800: #93370d;
+  --color-amber-900: #7a2e0e;
+  --color-amber-950: #4e1d09;
+
+  /* Error */
+  --color-red-50: #fef3f2;
+  --color-red-100: #fee4e2;
+  --color-red-200: #fecdca;
+  --color-red-300: #fda29b;
+  --color-red-400: #f97066;
+  --color-red-500: #f04438;
+  --color-red-600: #d92d20;
+  --color-red-700: #b42318;
+  --color-red-800: #912018;
+  --color-red-900: #7a271a;
+  --color-red-950: #55160c;
+
+  /* Secondary accent (kept for badge tones) */
+  --color-violet-50: #f4f3ff;
+  --color-violet-100: #ebe9fe;
+  --color-violet-200: #d9d6fe;
+  --color-violet-300: #bdb4fe;
+  --color-violet-400: #9b8afb;
+  --color-violet-500: #7a5af8;
+  --color-violet-600: #6938ef;
+  --color-violet-700: #5925dc;
+  --color-violet-800: #4a1fb8;
+  --color-violet-900: #3e1c96;
+  --color-violet-950: #27115f;
+
+  --text-title-2xl: 72px;
+  --text-title-xl: 60px;
+  --text-title-lg: 48px;
+  --text-title-md: 36px;
+  --text-title-sm: 30px;
+  --text-theme-xl: 20px;
+  --text-theme-sm: 14px;
+  --text-theme-xs: 12px;
+
+  --shadow-theme-xs: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+  --shadow-theme-sm:
+    0px 1px 3px 0px rgba(16, 24, 40, 0.1), 0px 1px 2px 0px rgba(16, 24, 40, 0.06);
+  --shadow-theme-md:
+    0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06);
+  --shadow-theme-lg:
+    0px 12px 16px -4px rgba(16, 24, 40, 0.08), 0px 4px 6px -2px rgba(16, 24, 40, 0.03);
+  --shadow-theme-xl:
+    0px 20px 24px -4px rgba(16, 24, 40, 0.08), 0px 8px 8px -4px rgba(16, 24, 40, 0.03);
+  --shadow-focus-ring: 0px 0px 0px 4px rgba(70, 95, 255, 0.12);
+}
+
 :root {
-  --background: #f1f5f9;
-  --foreground: #0f172a;
+  --background: #f9fafb;
+  --foreground: #101828;
 }
 
 .dark {
-  --background: #0b1220;
-  --foreground: #e2e8f0;
+  --background: #101828;
+  --foreground: #e4e7ec;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-outfit);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background:
-    radial-gradient(1200px 600px at 100% -10%, rgba(11, 58, 110, 0.05), transparent),
-    var(--background);
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
-}
-
-.dark body {
-  background:
-    radial-gradient(1200px 600px at 100% -10%, rgba(56, 132, 255, 0.06), transparent),
-    var(--background);
 }
 
 @media (max-width: 1023px) {

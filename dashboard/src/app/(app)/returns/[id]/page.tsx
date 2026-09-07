@@ -84,7 +84,7 @@ export default async function RmaDetailPage({
       <div className="no-print">
         <Link
           href={`/returns/${rma.id}/print`}
-          className="inline-flex h-10 items-center rounded-lg bg-white px-4 text-sm font-medium ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-700"
+          className="inline-flex h-11 items-center rounded-lg border border-gray-300 bg-white px-4 text-theme-sm font-medium text-gray-700 shadow-theme-xs transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
         >
           Format / print
         </Link>
@@ -96,12 +96,12 @@ export default async function RmaDetailPage({
         </p>
         <p className="mt-2">
           Invoice:{" "}
-          <Link className="text-[#0b3a6e] hover:underline dark:text-sky-400" href={`/invoices/${rma.invoiceId}`}>
+          <Link className="text-brand-500 hover:underline dark:text-sky-400" href={`/invoices/${rma.invoiceId}`}>
             {rma.invoice.invoiceNumber}
           </Link>
         </p>
         <dl className="mt-4 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-800/50">
+          <div className="rounded-xl bg-gray-50 px-4 py-3 dark:bg-white/[0.03]">
             <dt className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Total amount
             </dt>
@@ -109,7 +109,7 @@ export default async function RmaDetailPage({
               {formatGbp(credit.totalGbp)}
             </dd>
           </div>
-          <div className="rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-800/50">
+          <div className="rounded-xl bg-gray-50 px-4 py-3 dark:bg-white/[0.03]">
             <dt className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Amount applied
             </dt>
@@ -117,13 +117,13 @@ export default async function RmaDetailPage({
               {formatGbp(credit.appliedGbp)}
             </dd>
           </div>
-          <div className="rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-800/50">
+          <div className="rounded-xl bg-gray-50 px-4 py-3 dark:bg-white/[0.03]">
             <dt className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Balance remaining
             </dt>
             <dd
               className={`mt-1 text-lg font-semibold tabular-nums ${
-                credit.availableGbp > 0 ? "text-[#0b3a6e] dark:text-sky-400" : "text-slate-500"
+                credit.availableGbp > 0 ? "text-brand-500 dark:text-sky-400" : "text-slate-500"
               }`}
             >
               {formatGbp(credit.remainingGbp)}
@@ -259,7 +259,7 @@ export default async function RmaDetailPage({
                     <Td>{formatGbp(payment.amountGbp)}</Td>
                     <Td>
                       <Link
-                        className="text-[#0b3a6e] hover:underline dark:text-sky-400"
+                        className="text-brand-500 hover:underline dark:text-sky-400"
                         href={`/invoices/${payment.invoice.id}`}
                       >
                         {payment.invoice.invoiceNumber}

@@ -40,7 +40,7 @@ function InvoicePreviewModal({
       role="presentation"
     >
       <div
-        className="relative w-full max-w-3xl rounded-xl bg-white shadow-xl ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800"
+        className="relative w-full max-w-3xl rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
         role="dialog"
         aria-modal="true"
         onClick={(event) => event.stopPropagation()}
@@ -48,7 +48,7 @@ function InvoicePreviewModal({
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-3 top-3 z-10 rounded-full bg-white p-1.5 text-slate-500 shadow ring-1 ring-slate-200 hover:text-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-700 dark:hover:text-slate-200"
+          className="absolute right-3 top-3 z-10 rounded-full border border-gray-200 bg-white p-1.5 text-gray-500 shadow-theme-xs hover:text-gray-700 dark:border-gray-800 dark:bg-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
         >
           <X size={16} />
         </button>
@@ -108,7 +108,7 @@ export function RmaCustomerInvoicePicker({
                   onClick={() => openPreview(invoice.id)}
                   className={`rounded-lg border px-3 py-2 text-sm font-medium ${
                     invoice.id === selectedInvoiceId
-                      ? "border-[#0b3a6e] bg-[#0b3a6e] text-white"
+                      ? "border-brand-500 bg-brand-500 text-white"
                       : "border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800"
                   }`}
                 >

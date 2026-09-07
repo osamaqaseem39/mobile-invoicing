@@ -3,19 +3,19 @@ import { cn } from "@/lib/utils";
 
 const variants = {
   primary:
-    "bg-gradient-to-b from-[#164d8c] to-[#0b3a6e] text-white shadow-md shadow-blue-900/25 ring-1 ring-inset ring-white/10 hover:brightness-110 hover:shadow-lg hover:shadow-blue-900/30 active:brightness-95 disabled:from-slate-400 disabled:to-slate-400 disabled:shadow-none disabled:ring-0 dark:shadow-black/40",
+    "bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300 dark:disabled:bg-brand-800",
   secondary:
-    "bg-white text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-slate-50 hover:shadow-md dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700",
+    "bg-white text-gray-700 ring-1 ring-gray-300 shadow-theme-xs hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03]",
   danger:
-    "bg-gradient-to-b from-red-500 to-red-600 text-white shadow-md shadow-red-900/25 ring-1 ring-inset ring-white/10 hover:brightness-110 hover:shadow-lg hover:shadow-red-900/30 active:brightness-95",
+    "bg-red-500 text-white shadow-theme-xs hover:bg-red-600 disabled:bg-red-300",
   ghost:
-    "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800",
+    "text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-300",
 };
 
 const sizes = {
-  sm: "h-8 px-3 text-xs",
-  md: "h-10 px-4 text-sm",
-  lg: "h-11 px-5 text-sm",
+  sm: "h-9 px-3.5 text-theme-xs",
+  md: "h-11 px-4 text-theme-sm",
+  lg: "h-12 px-5 text-theme-sm",
 };
 
 export function Button({
@@ -30,7 +30,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:active:scale-100",
+        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors disabled:cursor-not-allowed",
         variants[variant],
         sizes[size],
         className,

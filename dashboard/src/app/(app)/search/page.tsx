@@ -102,7 +102,7 @@ export default async function SearchPage({
                   {section.items.map((item) => (
                     <li key={item.href + item.label} className="flex justify-between gap-3">
                       <div>
-                        <Link className="text-[#0b3a6e] hover:underline dark:text-sky-400" href={item.href}>
+                        <Link className="text-brand-500 hover:underline dark:text-sky-400" href={item.href}>
                           {item.label}
                         </Link>
                         {item.meta ? (

@@ -52,7 +52,7 @@ export default async function SuppliersPage({
                       className="absolute inset-0"
                       aria-label={`View ${supplier.name}`}
                     />
-                    <span className="font-medium text-[#0b3a6e] dark:text-sky-400">{supplier.name}</span>
+                    <span className="font-medium text-brand-500 dark:text-sky-400">{supplier.name}</span>
                     <div className="text-xs text-slate-500 dark:text-slate-400">
                       {supplier.phone || supplier.email || "—"}
                     </div>

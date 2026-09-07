@@ -11,22 +11,24 @@ export function PageHeader({
   action?: { href: string; label: string };
 }) {
   return (
-    <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-      <div className="flex items-start gap-2">
+    <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <div className="flex items-center gap-3">
         <BackButton />
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+          <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">
             {title}
           </h1>
           {description ? (
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{description}</p>
+            <p className="mt-1 text-theme-sm text-gray-500 dark:text-gray-400">
+              {description}
+            </p>
           ) : null}
         </div>
       </div>
       {action ? (
         <Link
           href={action.href}
-          className="inline-flex h-10 items-center rounded-xl bg-gradient-to-b from-[#164d8c] to-[#0b3a6e] px-4 text-sm font-semibold text-white shadow-md shadow-blue-900/25 ring-1 ring-inset ring-white/10 transition-all duration-150 hover:brightness-110 hover:shadow-lg hover:shadow-blue-900/30 active:scale-[0.98]"
+          className="inline-flex h-11 items-center rounded-lg bg-brand-500 px-4 text-theme-sm font-medium text-white shadow-theme-xs transition-colors hover:bg-brand-600"
         >
           {action.label}
         </Link>

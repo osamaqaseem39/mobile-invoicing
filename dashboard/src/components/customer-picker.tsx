@@ -109,7 +109,7 @@ export function CustomerPicker({
                   href={`/customers/new?name=${encodeURIComponent(query.trim())}${
                     returnTo ? `&returnTo=${encodeURIComponent(returnTo)}` : ""
                   }`}
-                  className="block px-3 py-2 text-sm font-medium text-[#0b3a6e] hover:bg-slate-50 dark:text-sky-400 dark:hover:bg-slate-700"
+                  className="block px-3 py-2 text-sm font-medium text-brand-500 hover:bg-slate-50 dark:text-sky-400 dark:hover:bg-slate-700"
                 >
                   No match — add &ldquo;{query.trim()}&rdquo; as a new customer
                 </Link>

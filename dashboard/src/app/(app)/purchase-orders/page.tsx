@@ -52,7 +52,7 @@ export default async function PurchaseOrdersPage() {
               return (
                 <tr key={po.id}>
                   <Td>
-                    <Link className="font-medium text-[#0b3a6e] hover:underline dark:text-sky-400" href={`/purchase-orders/${po.id}`}>
+                    <Link className="font-medium text-brand-500 hover:underline dark:text-sky-400" href={`/purchase-orders/${po.id}`}>
                       {po.poNumber}
                     </Link>
                   </Td>

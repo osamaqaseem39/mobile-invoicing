@@ -33,26 +33,26 @@ function ConfirmDialog({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4 backdrop-blur-[32px]"
       onClick={onCancel}
       role="presentation"
     >
       <div
-        className="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800"
+        className="w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="confirm-dialog-title"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-500 dark:bg-red-500/15 dark:text-red-500">
             <AlertTriangle className="h-5 w-5" />
           </div>
           <div className="pt-1">
-            <h2 id="confirm-dialog-title" className="font-semibold text-slate-900 dark:text-slate-100">
+            <h2 id="confirm-dialog-title" className="text-theme-xl font-semibold text-gray-800 dark:text-white/90">
               {title}
             </h2>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{message}</p>
+            <p className="mt-1 text-theme-sm text-gray-500 dark:text-gray-400">{message}</p>
           </div>
         </div>
         <div className="mt-5 flex justify-end gap-2">

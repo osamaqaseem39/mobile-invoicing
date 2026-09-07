@@ -39,6 +39,9 @@ const PRIMARY_HREFS = ["/", "/stock", "/invoices", "/customers"];
 const primaryNav = PRIMARY_HREFS.map((href) => nav.find((item) => item.href === href)!);
 const moreNav = nav.filter((item) => !PRIMARY_HREFS.includes(item.href));
 
+const isActive = (pathname: string, href: string) =>
+  href === "/" ? pathname === "/" : pathname.startsWith(href);
+
 export function AppShell({
   children,
   userName,
@@ -59,81 +62,97 @@ export function AppShell({
     .toUpperCase();
 
   return (
-    <div className="flex min-h-screen bg-slate-100 dark:bg-slate-950">
-      <aside className="no-print hidden w-64 shrink-0 flex-col bg-gradient-to-b from-[#07162f] to-[#0a1f3d] text-white lg:flex">
-        <div className="flex items-center gap-3 border-b border-white/10 px-5 py-5">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 text-sm font-bold text-white shadow-lg shadow-sky-500/30 ring-1 ring-white/20">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+      <aside className="no-print hidden w-[290px] shrink-0 flex-col border-r border-gray-200 bg-white lg:flex dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex items-center gap-3 px-6 py-6">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-sm font-bold text-white">
             {company.shortName[0]}
           </div>
           <div>
-            <div className="text-xs font-semibold tracking-[0.2em] text-sky-300">
-              {company.shortName.toUpperCase()}
+            <div className="text-theme-sm font-bold text-gray-800 dark:text-white/90">
+              {company.shortName}
             </div>
-            <div className="mt-0.5 text-sm font-semibold text-white">Wholesale Ops</div>
+            <div className="text-theme-xs text-gray-500 dark:text-gray-400">
+              Wholesale Ops
+            </div>
           </div>
         </div>
-        <nav className="flex-1 space-y-1 p-3">
-          {nav.map((item) => {
-            const active =
-              item.href === "/"
-                ? pathname === "/"
-                : pathname.startsWith(item.href);
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors",
-                  active
-                    ? "bg-gradient-to-r from-sky-500/20 to-blue-500/5 font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] ring-1 ring-inset ring-sky-400/20"
-                    : "text-slate-300 hover:bg-white/5 hover:text-white",
-                )}
-              >
-                {active ? (
-                  <span className="absolute inset-y-1.5 left-0 w-1 rounded-full bg-gradient-to-b from-sky-400 to-blue-500" />
-                ) : null}
-                <Icon className={cn("h-4 w-4", active ? "text-sky-300" : "text-slate-400")} />
-                {item.label}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 overflow-y-auto px-4 pb-4">
+          <h3 className="mb-3 px-3 text-theme-xs font-medium uppercase tracking-wider text-gray-400">
+            Menu
+          </h3>
+          <ul className="flex flex-col gap-1">
+            {nav.map((item) => {
+              const active = isActive(pathname, item.href);
+              const Icon = item.icon;
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-theme-sm font-medium transition-colors",
+                      active
+                        ? "bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400"
+                        : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/[0.03]",
+                    )}
+                  >
+                    <Icon
+                      className={cn(
+                        "h-5 w-5 shrink-0",
+                        active
+                          ? "text-brand-500 dark:text-brand-400"
+                          : "text-gray-500 dark:text-gray-400",
+                      )}
+                    />
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
         </nav>
-        <div className="flex items-center gap-3 border-t border-white/10 p-4">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-semibold text-sky-200">
+        <div className="flex items-center gap-3 border-t border-gray-200 p-4 dark:border-gray-800">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-theme-xs font-medium text-gray-700 dark:bg-white/5 dark:text-gray-300">
             {initials || "U"}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-xs font-medium text-white">{userName}</div>
-            <div className="truncate text-[11px] text-slate-400">{company.tradingName}</div>
+            <div className="truncate text-theme-sm font-medium text-gray-800 dark:text-white/90">
+              {userName}
+            </div>
+            <div className="truncate text-theme-xs text-gray-500 dark:text-gray-400">
+              {company.tradingName}
+            </div>
           </div>
-          <ThemeToggle className="shrink-0 text-slate-300 hover:bg-white/10 hover:text-white" />
+          <ThemeToggle className="shrink-0 border border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]" />
         </div>
       </aside>
+
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="no-print sticky top-0 z-30 flex items-center gap-2 border-b border-slate-200 bg-white/80 px-3 py-3 backdrop-blur sm:gap-4 sm:px-4 lg:px-8 dark:border-slate-800 dark:bg-slate-900/80">
-          <div className="shrink-0 font-semibold text-[#07162f] lg:hidden dark:text-white">
+        <header className="no-print sticky top-0 z-30 flex items-center gap-3 border-b border-gray-200 bg-white px-4 py-3 lg:px-6 lg:py-4 dark:border-gray-800 dark:bg-gray-900">
+          <div className="shrink-0 font-bold text-gray-800 lg:hidden dark:text-white/90">
             {company.shortName} Ops
           </div>
-          <form action="/search" className="min-w-0 flex-1 sm:max-w-xl">
+          <form action="/search" className="min-w-0 flex-1 sm:max-w-md">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 dark:text-gray-400" />
               <input
                 name="q"
                 placeholder="Search IMEI, invoice, PO, customer, tracking…"
-                className="h-10 w-full rounded-full border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm shadow-sm outline-none transition focus:border-[#0b3a6e] focus:bg-white focus:shadow-md focus:ring-4 focus:ring-[#0b3a6e]/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-sky-500 dark:focus:bg-slate-800 dark:focus:ring-sky-500/10"
+                className="h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-11 pr-4 text-theme-sm text-gray-800 shadow-theme-xs outline-hidden transition placeholder:text-gray-400 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
               />
             </div>
           </form>
-          <div className="ml-auto flex shrink-0 items-center gap-2 text-sm sm:gap-3">
-            <ThemeToggle className="text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100 lg:hidden" />
-            <span className="hidden text-slate-600 sm:inline dark:text-slate-300">{userName}</span>
-            <div className="hidden h-6 w-px bg-slate-200 sm:block dark:bg-slate-700" />
+          <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
+            <ThemeToggle className="border border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-700 lg:hidden dark:border-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]" />
+            <span className="hidden text-theme-sm text-gray-700 sm:inline dark:text-gray-400">
+              {userName}
+            </span>
+            <div className="hidden h-6 w-px bg-gray-200 sm:block dark:bg-gray-800" />
             <form action={logoutAction}>
               <button
                 type="submit"
                 aria-label="Sign out"
-                className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                className="inline-flex items-center gap-2 rounded-lg px-2.5 py-2 text-theme-sm text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-300"
               >
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline">Sign out</span>
@@ -141,28 +160,24 @@ export function AppShell({
             </form>
           </div>
         </header>
-        <main className="flex-1 p-4 pb-24 lg:p-8 lg:pb-8">{children}</main>
+        <main className="flex-1 p-4 pb-24 md:p-6 lg:pb-6">{children}</main>
       </div>
 
-      <nav className="no-print fixed inset-x-0 bottom-0 z-40 flex border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden dark:border-slate-800 dark:bg-slate-900/95">
+      <nav className="no-print fixed inset-x-0 bottom-0 z-40 flex border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] lg:hidden dark:border-gray-800 dark:bg-gray-900">
         {primaryNav.map((item) => {
-          const active =
-            item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+          const active = isActive(pathname, item.href);
           const Icon = item.icon;
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "relative flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px]",
+                "flex flex-1 flex-col items-center gap-1 py-2.5 text-theme-xs font-medium",
                 active
-                  ? "font-semibold text-[#0b3a6e] dark:text-sky-400"
-                  : "text-slate-500 dark:text-slate-400",
+                  ? "text-brand-500 dark:text-brand-400"
+                  : "text-gray-500 dark:text-gray-400",
               )}
             >
-              {active ? (
-                <span className="absolute top-0 h-0.5 w-8 rounded-full bg-gradient-to-r from-sky-400 to-blue-600" />
-              ) : null}
               <Icon className="h-5 w-5" />
               {item.label}
             </Link>
@@ -172,10 +187,10 @@ export function AppShell({
           type="button"
           onClick={() => setMoreOpen(true)}
           className={cn(
-            "flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px]",
+            "flex flex-1 flex-col items-center gap-1 py-2.5 text-theme-xs font-medium",
             moreActive
-              ? "font-medium text-[#0b3a6e] dark:text-sky-400"
-              : "text-slate-500 dark:text-slate-400",
+              ? "text-brand-500 dark:text-brand-400"
+              : "text-gray-500 dark:text-gray-400",
           )}
         >
           <MoreHorizontal className="h-5 w-5" />
@@ -186,30 +201,40 @@ export function AppShell({
       {moreOpen ? (
         <div className="no-print fixed inset-0 z-50 lg:hidden">
           <div
-            className="absolute inset-0 bg-black/40"
+            className="absolute inset-0 bg-gray-900/50"
             onClick={() => setMoreOpen(false)}
           />
-          <div className="absolute inset-x-0 bottom-0 rounded-t-2xl bg-white p-3 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-xl dark:bg-slate-900">
-            <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-slate-200 dark:bg-slate-700" />
-            {moreNav.map((item) => {
-              const Icon = item.icon;
-              const active = pathname.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-3 text-sm",
-                    active
-                      ? "bg-slate-100 font-medium text-[#0b3a6e] dark:bg-slate-800 dark:text-sky-400"
-                      : "text-slate-700 dark:text-slate-300",
-                  )}
-                >
-                  <Icon className="h-5 w-5 text-slate-400 dark:text-slate-500" />
-                  {item.label}
-                </Link>
-              );
-            })}
+          <div className="absolute inset-x-0 bottom-0 rounded-t-2xl border border-gray-200 bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark">
+            <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-gray-200 dark:bg-gray-700" />
+            <ul className="flex flex-col gap-1">
+              {moreNav.map((item) => {
+                const Icon = item.icon;
+                const active = pathname.startsWith(item.href);
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-3 text-theme-sm font-medium",
+                        active
+                          ? "bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400"
+                          : "text-gray-700 dark:text-gray-300",
+                      )}
+                    >
+                      <Icon
+                        className={cn(
+                          "h-5 w-5",
+                          active
+                            ? "text-brand-500 dark:text-brand-400"
+                            : "text-gray-500 dark:text-gray-400",
+                        )}
+                      />
+                      {item.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         </div>
       ) : null}

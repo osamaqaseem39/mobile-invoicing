@@ -51,7 +51,7 @@ export default async function ReturnsPage({
             className={`px-3 py-2 ${
               outstandingOnly
                 ? "text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                : "bg-[#0b3a6e] font-medium text-white"
+                : "bg-brand-500 font-medium text-white"
             }`}
           >
             All ({rows.length})
@@ -60,7 +60,7 @@ export default async function ReturnsPage({
             href="/returns?filter=outstanding"
             className={`border-l border-slate-200 px-3 py-2 dark:border-slate-700 ${
               outstandingOnly
-                ? "bg-[#0b3a6e] font-medium text-white"
+                ? "bg-brand-500 font-medium text-white"
                 : "text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
             }`}
           >
@@ -91,7 +91,7 @@ export default async function ReturnsPage({
             {visible.map(({ rma, credit }) => (
               <tr key={rma.id}>
                 <Td>
-                  <Link className="font-medium text-[#0b3a6e] hover:underline dark:text-sky-400" href={`/returns/${rma.id}`}>
+                  <Link className="font-medium text-brand-500 hover:underline dark:text-sky-400" href={`/returns/${rma.id}`}>
                     {rma.rmaNumber}
                   </Link>
                 </Td>
@@ -103,7 +103,7 @@ export default async function ReturnsPage({
                 <Td
                   className={`tabular-nums ${
                     credit.availableGbp > 0
-                      ? "font-medium text-[#0b3a6e] dark:text-sky-400"
+                      ? "font-medium text-brand-500 dark:text-sky-400"
                       : "text-slate-500"
                   }`}
                 >

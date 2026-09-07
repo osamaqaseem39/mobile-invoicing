@@ -66,13 +66,13 @@ export default async function PurchaseOrderDetailPage({
       <div className="flex flex-wrap gap-3">
         <Link
           href={`/purchase-orders/${po.id}/receive`}
-          className="inline-flex h-10 items-center rounded-lg bg-[#0b3a6e] px-4 text-sm font-medium text-white"
+          className="inline-flex h-11 items-center rounded-lg bg-brand-500 px-4 text-theme-sm font-medium text-white shadow-theme-xs transition-colors hover:bg-brand-600"
         >
           Receive stock
         </Link>
         <Link
           href={`/suppliers/${po.supplierId}`}
-          className="inline-flex h-10 items-center rounded-lg bg-white px-4 text-sm font-medium ring-1 ring-slate-200 dark:bg-slate-900 dark:text-slate-100 dark:ring-slate-800"
+          className="inline-flex h-11 items-center rounded-lg border border-gray-300 bg-white px-4 text-theme-sm font-medium text-gray-700 shadow-theme-xs transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
         >
           Supplier hisab
         </Link>
@@ -127,7 +127,7 @@ export default async function PurchaseOrderDetailPage({
               href={`/purchase-orders/${po.id}/attachment`}
               target="_blank"
               rel="noreferrer"
-              className="text-[#0b3a6e] hover:underline dark:text-sky-400"
+              className="text-brand-500 hover:underline dark:text-sky-400"
             >
               {po.attachmentFilename}
             </a>

@@ -28,8 +28,8 @@ function Section({
 }) {
   return (
     <Card className="overflow-hidden p-0">
-      <div className="flex items-center gap-3 border-b border-slate-100 bg-gradient-to-b from-slate-50 to-white px-6 py-5 dark:border-slate-800 dark:from-slate-800/40 dark:to-slate-900">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#0b3a6e]/8 text-[#0b3a6e] dark:bg-sky-500/10 dark:text-sky-400">
+      <div className="flex items-center gap-3 border-b border-gray-100 bg-gray-50 px-6 py-5 dark:border-gray-800 dark:bg-white/[0.02]">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-500/10 text-brand-500 dark:bg-sky-500/10 dark:text-sky-400">
           <Icon className="h-[18px] w-[18px]" />
         </div>
         <div>

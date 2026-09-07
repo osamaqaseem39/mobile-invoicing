@@ -89,7 +89,7 @@ export default async function CustomerDetailPage({
         <ul className="space-y-2 text-sm">
           {customer.invoices.map((invoice) => (
             <li key={invoice.id} className="flex justify-between">
-              <Link className="text-[#0b3a6e] hover:underline dark:text-sky-400" href={`/invoices/${invoice.id}`}>
+              <Link className="text-brand-500 hover:underline dark:text-sky-400" href={`/invoices/${invoice.id}`}>
                 {invoice.invoiceNumber}
               </Link>
               <StatusBadge status={invoice.status} />

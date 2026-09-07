@@ -189,7 +189,7 @@ export default async function SupplierDetailPage({
             <ul className="space-y-2 text-sm">
               {supplier.purchaseOrders.map((po) => (
                 <li key={po.id} className="flex items-center justify-between">
-                  <Link className="text-[#0b3a6e] hover:underline dark:text-sky-400" href={`/purchase-orders/${po.id}`}>
+                  <Link className="text-brand-500 hover:underline dark:text-sky-400" href={`/purchase-orders/${po.id}`}>
                     {po.poNumber}
                   </Link>
                   <StatusBadge status={po.status} />

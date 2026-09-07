@@ -47,7 +47,7 @@ export default async function InvoicesPage({
           <option value="PAID">Paid</option>
           <option value="CANCELLED">Cancelled</option>
         </Select>
-        <button className="ml-2 h-10 rounded-lg bg-white px-4 text-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:text-slate-100 dark:ring-slate-800">
+        <button className="ml-2 h-11 rounded-lg border border-gray-300 bg-white px-4 text-theme-sm font-medium text-gray-700 shadow-theme-xs transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]">
           Filter
         </button>
       </form>
@@ -69,7 +69,7 @@ export default async function InvoicesPage({
               const totals = invoiceTotals(invoice);
               return (
                 <ClickableRow key={invoice.id} href={`/invoices/${invoice.id}`}>
-                  <Td className="font-medium text-[#0b3a6e] dark:text-sky-400">{invoice.invoiceNumber}</Td>
+                  <Td className="font-medium text-brand-500 dark:text-sky-400">{invoice.invoiceNumber}</Td>
                   <Td className="font-mono">{invoice.customer.clientId}</Td>
                   <Td>{invoice.customer.name}</Td>
                   <Td>

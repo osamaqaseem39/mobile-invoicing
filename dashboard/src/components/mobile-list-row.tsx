@@ -20,18 +20,18 @@ export function MobileListRow({
   const content = (
     <>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{title}</div>
+        <div className="truncate text-theme-sm font-medium text-gray-800 dark:text-white/90">{title}</div>
         {subtitle ? (
-          <div className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">{subtitle}</div>
+          <div className="mt-0.5 truncate text-theme-xs text-gray-500 dark:text-gray-400">{subtitle}</div>
         ) : null}
       </div>
       {trailing || meta ? (
         <div className="flex shrink-0 flex-col items-end gap-1 text-right">
           {trailing}
-          {meta ? <div className="text-xs text-slate-500 dark:text-slate-400">{meta}</div> : null}
+          {meta ? <div className="text-theme-xs text-gray-500 dark:text-gray-400">{meta}</div> : null}
         </div>
       ) : null}
-      {href ? <ChevronRight className="h-4 w-4 shrink-0 text-slate-300 dark:text-slate-600" /> : null}
+      {href ? <ChevronRight className="h-4 w-4 shrink-0 text-gray-400 dark:text-gray-600" /> : null}
     </>
   );
 
@@ -47,7 +47,7 @@ export function MobileListRow({
     <Link
       href={href}
       className={cn(
-        "flex items-center gap-3 px-4 py-3 transition-colors active:bg-sky-50/60 dark:active:bg-slate-800",
+        "flex items-center gap-3 px-4 py-3 transition-colors active:bg-gray-50 dark:active:bg-white/[0.03]",
         className,
       )}
     >

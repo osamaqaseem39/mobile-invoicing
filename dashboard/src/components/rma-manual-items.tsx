@@ -65,7 +65,7 @@ export function RmaManualItems({
                     unitPriceGbp: item.unitPriceGbp,
                   })
                 }
-                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-left text-xs hover:border-[#0b3a6e] hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800"
+                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-left text-xs hover:border-brand-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800"
               >
                 <span className="font-medium">{item.productName}</span>
                 <span className="text-slate-500 dark:text-slate-400">

@@ -45,7 +45,7 @@ export default async function CustomersPage({
               <tr key={customer.id}>
                 <Td className="font-mono">{customer.clientId}</Td>
                 <Td>
-                  <Link className="font-medium text-[#0b3a6e] hover:underline dark:text-sky-400" href={`/customers/${customer.id}`}>
+                  <Link className="font-medium text-brand-500 hover:underline dark:text-sky-400" href={`/customers/${customer.id}`}>
                     {customer.name}
                   </Link>
                 </Td>

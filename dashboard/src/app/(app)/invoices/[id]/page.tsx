@@ -129,19 +129,19 @@ export default async function InvoiceDetailPage({
         </form>
         <Link
           href={`/invoices/${invoice.id}/print`}
-          className="inline-flex h-10 items-center rounded-lg bg-white px-4 text-sm font-medium ring-1 ring-slate-200 dark:bg-slate-900 dark:text-slate-100 dark:ring-slate-800"
+          className="inline-flex h-11 items-center rounded-lg border border-gray-300 bg-white px-4 text-theme-sm font-medium text-gray-700 shadow-theme-xs transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
         >
           Format / print
         </Link>
         <Link
           href={`/returns/new?invoiceId=${invoice.id}`}
-          className="inline-flex h-10 items-center rounded-lg bg-white px-4 text-sm font-medium ring-1 ring-slate-200 dark:bg-slate-900 dark:text-slate-100 dark:ring-slate-800"
+          className="inline-flex h-11 items-center rounded-lg border border-gray-300 bg-white px-4 text-theme-sm font-medium text-gray-700 shadow-theme-xs transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
         >
           Create RMA
         </Link>
         <Link
           href={`/shipments/new?invoiceId=${invoice.id}`}
-          className="inline-flex h-10 items-center rounded-lg bg-white px-4 text-sm font-medium ring-1 ring-slate-200 dark:bg-slate-900 dark:text-slate-100 dark:ring-slate-800"
+          className="inline-flex h-11 items-center rounded-lg border border-gray-300 bg-white px-4 text-theme-sm font-medium text-gray-700 shadow-theme-xs transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
         >
           Add shipment
         </Link>
@@ -224,7 +224,7 @@ export default async function InvoiceDetailPage({
                     {payment.rma ? (
                       <Link
                         href={`/returns/${payment.rma.id}`}
-                        className="text-[#0b3a6e] hover:underline dark:text-sky-400"
+                        className="text-brand-500 hover:underline dark:text-sky-400"
                       >
                         {payment.rma.rmaNumber}
                       </Link>
