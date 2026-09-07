@@ -1,5 +1,43 @@
 import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// tailwind-merge only knows Tailwind's stock scales, so it reads the TailAdmin
+// `text-theme-*` / `text-title-*` sizes as text *colors* and the
+// `shadow-theme-*` sizes as shadow colors — which silently strips the real
+// color off anything sized with them (`text-white` off a primary button, say).
+// Registering the scales puts them back in the groups they belong to.
+const twMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      "font-size": [
+        {
+          text: [
+            "theme-xs",
+            "theme-sm",
+            "theme-xl",
+            "title-sm",
+            "title-md",
+            "title-lg",
+            "title-xl",
+            "title-2xl",
+          ],
+        },
+      ],
+      shadow: [
+        {
+          shadow: [
+            "theme-xs",
+            "theme-sm",
+            "theme-md",
+            "theme-lg",
+            "theme-xl",
+            "focus-ring",
+          ],
+        },
+      ],
+    },
+  },
+});
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
