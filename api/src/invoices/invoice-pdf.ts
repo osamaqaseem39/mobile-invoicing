@@ -1,5 +1,5 @@
 import PDFDocument from "pdfkit";
-import { company, companyAddressLines } from "../common/company";
+import { bankDetailLines, company, companyAddressLines } from "../common/company";
 import { DEFAULT_GBP_TO_EUR_RATE, formatMoney, type PrintCurrency } from "../common/money";
 import { formatDate, labelStatus } from "../common/status";
 import { invoiceTotals } from "../common/invoice";
@@ -254,10 +254,7 @@ export function buildInvoicePdf(
     .fontSize(9)
     .text(
       [
-        `Bank Name: ${company.bank.bankName}`,
-        `Account Name: ${company.bank.accountName}`,
-        `Sort code: ${company.bank.sortCode}`,
-        `Account: ${company.bank.accountNumber}`,
+        ...bankDetailLines(currency),
         "",
         `Payment Reference: ${invoice.invoiceNumber}`,
         `You must enter ${invoice.invoiceNumber} as your payment reference.`,

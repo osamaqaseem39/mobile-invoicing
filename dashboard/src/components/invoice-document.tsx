@@ -1,6 +1,6 @@
 import { updateInvoiceLine } from "@/actions/invoices";
 import { CompanyBrand } from "@/components/company-brand";
-import { addressLines, company } from "@/lib/company";
+import { addressLines, bankDetailLines, company } from "@/lib/company";
 import { invoiceTotals } from "@/lib/invoice";
 import { DEFAULT_GBP_TO_EUR_RATE, formatMoney, type PrintCurrency } from "@/lib/money";
 import { INVOICE_INVALID_UNTIL_PAID_NOTICE, INVOICE_MARGIN_NOTICE, INVOICE_TERMS } from "@/lib/terms";
@@ -296,10 +296,9 @@ export function InvoiceDocument({
       <div className="mt-6 flex flex-wrap justify-between gap-6">
         <div className="max-w-sm text-sm text-slate-600">
           <div className="text-xs uppercase tracking-wide text-slate-500">Bank details</div>
-          <div>Bank Name: {company.bank.bankName}</div>
-          <div>Account Name: {company.bank.accountName}</div>
-          <div>Sort code: {company.bank.sortCode}</div>
-          <div>Account: {company.bank.accountNumber}</div>
+          {bankDetailLines(currency).map((line) => (
+            <div key={line}>{line}</div>
+          ))}
           <div className="mt-2">
             Payment Reference: {invoice.invoiceNumber}
             <br />
