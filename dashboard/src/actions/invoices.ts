@@ -77,9 +77,9 @@ export async function createInvoice(formData: FormData) {
       apiToken,
     );
   } catch (err) {
-    if (err instanceof ApiError) {
-      redirect(`/invoices/new?error=${encodeURIComponent(err.message)}`);
-    }
+    // Returned rather than redirected: the form renders this in place and
+    // keeps everything already typed into it.
+    if (err instanceof ApiError) return { error: err.message };
     throw err;
   }
 

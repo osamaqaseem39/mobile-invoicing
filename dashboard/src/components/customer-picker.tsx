@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { searchCustomers } from "@/actions/customers";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +32,18 @@ export function CustomerPicker({
   const [hits, setHits] = useState<CustomerHit[]>([]);
   const [selected, setSelected] = useState<CustomerHit | null>(initial ?? null);
   const [open, setOpen] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  // The customer id lives in a hidden input, and hidden inputs are barred from
+  // constraint validation — so marking that one required did nothing, and
+  // submitting without a customer only failed at the API, whose error redirect
+  // discards everything already typed into the form. Carry the requirement on
+  // the visible box instead, so the browser stops the submit.
+  useEffect(() => {
+    searchRef.current?.setCustomValidity(
+      selected ? "" : "Pick a customer from the search results.",
+    );
+  }, [selected]);
 
   useEffect(() => {
     if (initial) onSelect?.(initial);
@@ -60,10 +72,11 @@ export function CustomerPicker({
 
   return (
     <div className="space-y-3">
-      <input type="hidden" name={name} value={selected?.id ?? ""} required />
+      <input type="hidden" name={name} value={selected?.id ?? ""} />
       <div className="relative">
         <Label htmlFor="customer-search">Customer name</Label>
         <Input
+          ref={searchRef}
           id="customer-search"
           value={query}
           autoComplete="off"

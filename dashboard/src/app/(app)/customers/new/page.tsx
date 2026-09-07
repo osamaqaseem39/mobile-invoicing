@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ActionForm } from "@/components/ui/action-form";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Textarea } from "@/components/ui/textarea";
 import { requireUser } from "@/lib/auth-guard";
@@ -33,7 +34,7 @@ export default async function NewCustomerPage({
       <PageHeader title="Add customer" description="Client ID is generated automatically." />
       <Notice error={error} />
       <Card>
-        <form action={createCustomer} className="space-y-6">
+        <ActionForm action={createCustomer} className="space-y-6">
           {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
 
           <div className="space-y-3">
@@ -118,7 +119,7 @@ export default async function NewCustomerPage({
           </div>
 
           <SubmitButton pendingText="Adding…">Save customer</SubmitButton>
-        </form>
+        </ActionForm>
       </Card>
     </div>
   );

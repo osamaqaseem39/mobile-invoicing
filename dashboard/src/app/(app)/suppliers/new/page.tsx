@@ -3,6 +3,7 @@ import { createSupplier } from "@/actions/suppliers";
 import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
+import { ActionForm } from "@/components/ui/action-form";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,7 +57,7 @@ export default async function NewSupplierPage({
         description="Suppliers appear as pick options when creating purchase orders."
       />
       <Notice error={error} />
-      <form action={createSupplier} className="space-y-5">
+      <ActionForm action={createSupplier} className="space-y-5">
         <Section icon={User} title="Contact" description="Who to reach for orders and queries">
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
@@ -101,7 +102,7 @@ export default async function NewSupplierPage({
         <div className="flex justify-end">
           <SubmitButton pendingText="Adding…">Save supplier</SubmitButton>
         </div>
-      </form>
+      </ActionForm>
     </div>
   );
 }

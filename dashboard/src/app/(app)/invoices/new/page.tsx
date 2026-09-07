@@ -3,6 +3,7 @@ import { InvoiceForm } from "@/components/invoice-form";
 import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
+import { ActionForm } from "@/components/ui/action-form";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { requireUser } from "@/lib/auth-guard";
 import { getLookups } from "@/lib/lookups";
@@ -33,7 +34,7 @@ export default async function NewInvoicePage({
       />
       <Notice error={error} ok={newCustomer ? `Customer ${newCustomer.name} added` : undefined} />
       <Card>
-        <form action={createInvoice} className="space-y-6">
+        <ActionForm action={createInvoice} className="space-y-6">
           <InvoiceForm
             grades={lookups.grades}
             colors={lookups.colors}
@@ -41,7 +42,7 @@ export default async function NewInvoicePage({
             initialCustomer={newCustomer}
           />
           <SubmitButton pendingText="Saving…">Save invoice</SubmitButton>
-        </form>
+        </ActionForm>
       </Card>
     </div>
   );

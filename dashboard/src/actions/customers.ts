@@ -34,11 +34,7 @@ export async function createCustomer(formData: FormData) {
       apiToken,
     );
   } catch (err) {
-    if (err instanceof ApiError) {
-      redirect(
-        `/customers/new?error=${encodeURIComponent(err.message)}${returnTo ? `&returnTo=${encodeURIComponent(returnTo)}` : ""}`,
-      );
-    }
+    if (err instanceof ApiError) return { error: err.message };
     throw err;
   }
 

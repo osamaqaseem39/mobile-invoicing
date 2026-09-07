@@ -3,6 +3,7 @@ import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
 import { StockBatchForm } from "@/components/stock-batch-form";
 import { Card } from "@/components/ui/card";
+import { ActionForm } from "@/components/ui/action-form";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { requireUser } from "@/lib/auth-guard";
 import { getLookups } from "@/lib/lookups";
@@ -29,7 +30,7 @@ export default async function AddStockPage({
       />
       <Notice error={error} />
       <Card>
-        <form action={addStock}>
+        <ActionForm action={addStock}>
           <StockBatchForm
             grades={lookups.grades}
             colors={lookups.colors}
@@ -40,7 +41,7 @@ export default async function AddStockPage({
           <div className="mt-6">
             <SubmitButton pendingText="Adding…">Add to inventory</SubmitButton>
           </div>
-        </form>
+        </ActionForm>
       </Card>
     </div>
   );

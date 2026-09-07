@@ -3,6 +3,7 @@ import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
 import { PurchaseOrderForm } from "@/components/purchase-order-form";
 import { Card } from "@/components/ui/card";
+import { ActionForm } from "@/components/ui/action-form";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { requireUser } from "@/lib/auth-guard";
 import { getLookups } from "@/lib/lookups";
@@ -20,7 +21,7 @@ export default async function NewPurchaseOrderPage({
       <PageHeader title="Create purchase order" />
       <Notice error={error} />
       <Card>
-        <form action={createPurchaseOrder} className="space-y-6">
+        <ActionForm action={createPurchaseOrder} className="space-y-6">
           <PurchaseOrderForm
             suppliers={lookups.suppliers}
             grades={lookups.grades}
@@ -28,7 +29,7 @@ export default async function NewPurchaseOrderPage({
             networks={lookups.networks}
           />
           <SubmitButton pendingText="Saving…">Save purchase order</SubmitButton>
-        </form>
+        </ActionForm>
       </Card>
     </div>
   );

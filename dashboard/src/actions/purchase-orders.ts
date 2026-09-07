@@ -54,9 +54,7 @@ export async function createPurchaseOrder(formData: FormData) {
       apiToken,
     );
   } catch (err) {
-    if (err instanceof ApiError) {
-      redirect(`/purchase-orders/new?error=${encodeURIComponent(err.message)}`);
-    }
+    if (err instanceof ApiError) return { error: err.message };
     throw err;
   }
 

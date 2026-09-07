@@ -38,7 +38,6 @@ export async function receiveStockBatches(formData: FormData, options?: { fromPo
   const purchaseOrderId = toOptionalString(formData.get("purchaseOrderId"));
   const postLedger = formData.get("postLedger") === "on" || Boolean(options?.fromPo);
   const batches = parseBatches(formData);
-  const back = purchaseOrderId ? `/purchase-orders/${purchaseOrderId}/receive` : "/stock/add";
 
   let result: { unitsAdded: number };
   try {
@@ -48,7 +47,7 @@ export async function receiveStockBatches(formData: FormData, options?: { fromPo
       apiToken,
     );
   } catch (err) {
-    if (err instanceof ApiError) redirect(`${back}?error=${encodeURIComponent(err.message)}`);
+    if (err instanceof ApiError) return { error: err.message };
     throw err;
   }
 
@@ -63,7 +62,7 @@ export async function receiveStockBatches(formData: FormData, options?: { fromPo
 }
 
 export async function addStock(formData: FormData) {
-  await receiveStockBatches(formData);
+  return receiveStockBatches(formData);
 }
 
 export async function getAvailableImeis(

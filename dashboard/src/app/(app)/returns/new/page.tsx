@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { ActionForm } from "@/components/ui/action-form";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Textarea } from "@/components/ui/textarea";
 import { requireUser } from "@/lib/auth-guard";
@@ -60,7 +61,7 @@ export default async function NewRmaPage({
 
       {selected ? (
         <Card>
-          <form action={createRma} className="space-y-4">
+          <ActionForm action={createRma} className="space-y-4">
             <input type="hidden" name="invoiceId" value={selected.id} />
             <p className="text-sm text-slate-600 dark:text-slate-300">
               {selected.customer.name} · Client {selected.customer.clientId}
@@ -121,7 +122,7 @@ export default async function NewRmaPage({
               <Textarea id="notes" name="notes" />
             </div>
             <SubmitButton pendingText="Creating…">Create RMA</SubmitButton>
-          </form>
+          </ActionForm>
         </Card>
       ) : null}
     </div>

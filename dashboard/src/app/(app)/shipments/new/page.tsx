@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { ActionForm } from "@/components/ui/action-form";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Textarea } from "@/components/ui/textarea";
 import { requireUser } from "@/lib/auth-guard";
@@ -27,7 +28,7 @@ export default async function NewShipmentPage({
       <PageHeader title="Add shipment" />
       <Notice error={error} />
       <Card>
-        <form action={createShipment} className="space-y-4">
+        <ActionForm action={createShipment} className="space-y-4">
           <div>
             <Label htmlFor="invoiceId">Invoice</Label>
             <Select id="invoiceId" name="invoiceId" required defaultValue={invoiceId ?? ""}>
@@ -76,7 +77,7 @@ export default async function NewShipmentPage({
             <Textarea id="notes" name="notes" />
           </div>
           <SubmitButton pendingText="Adding…">Save shipment</SubmitButton>
-        </form>
+        </ActionForm>
       </Card>
     </div>
   );

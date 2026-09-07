@@ -23,7 +23,7 @@ export async function createSupplier(formData: FormData) {
       apiToken,
     );
   } catch (err) {
-    if (err instanceof ApiError) redirect(`/suppliers/new?error=${encodeURIComponent(err.message)}`);
+    if (err instanceof ApiError) return { error: err.message };
     throw err;
   }
   revalidatePath("/suppliers");
