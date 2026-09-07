@@ -278,22 +278,28 @@ export async function recordInvoicePayment(formData: FormData) {
   redirect(`/invoices/${id}?ok=Payment recorded`);
 }
 
-export async function updateInvoicePayment(formData: FormData) {
+// Every payment row is edited under one Save, so the fields are suffixed with
+// the payment id and the rows are sent together.
+export async function updateInvoicePayments(formData: FormData) {
   const { apiToken } = await requireUser();
   const id = String(formData.get("id") ?? "");
-  const paymentId = String(formData.get("paymentId") ?? "");
+  const paymentIds = String(formData.get("paymentIds") ?? "")
+    .split(",")
+    .filter(Boolean);
 
   try {
-    await apiClient.patch(
-      `/invoices/${id}/payments/${paymentId}`,
-      {
-        amountGbp: toNumber(formData.get("amountGbp")),
-        method: toOptionalString(formData.get("method")),
-        notes: toOptionalString(formData.get("notes")),
-        paidAt: toOptionalString(formData.get("paidAt")),
-      },
-      apiToken,
-    );
+    for (const paymentId of paymentIds) {
+      await apiClient.patch(
+        `/invoices/${id}/payments/${paymentId}`,
+        {
+          amountGbp: toNumber(formData.get(`amountGbp-${paymentId}`)),
+          method: toOptionalString(formData.get(`method-${paymentId}`)),
+          notes: toOptionalString(formData.get(`notes-${paymentId}`)),
+          paidAt: toOptionalString(formData.get(`paidAt-${paymentId}`)),
+        },
+        apiToken,
+      );
+    }
   } catch (err) {
     if (err instanceof ApiError) {
       redirect(`/invoices/${id}?error=${encodeURIComponent(err.message)}`);
@@ -302,7 +308,9 @@ export async function updateInvoicePayment(formData: FormData) {
   }
 
   revalidatePath(`/invoices/${id}`);
-  redirect(`/invoices/${id}?ok=Payment updated`);
+  redirect(
+    `/invoices/${id}?ok=${paymentIds.length === 1 ? "Payment updated" : "Payments updated"}`,
+  );
 }
 
 export async function createInstallmentPlan(formData: FormData) {

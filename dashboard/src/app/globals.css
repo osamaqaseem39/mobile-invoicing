@@ -193,6 +193,10 @@ body {
   .no-print {
     display: none !important;
   }
+  /* A tab panel that stays in the printout even when another tab is open. */
+  .print-always {
+    display: block !important;
+  }
   body {
     background: white !important;
     color: black !important;
