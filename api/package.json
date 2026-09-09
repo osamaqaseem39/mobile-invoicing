@@ -4,6 +4,7 @@
   "description": "ADS Wholesale Ops - REST API (NestJS + Prisma/Postgres)",
   "private": true,
   "license": "UNLICENSED",
+  "main": "dist/main.js",
   "scripts": {
     "build": "nest build",
     "start": "nest start",
