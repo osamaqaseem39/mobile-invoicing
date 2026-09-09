@@ -25,7 +25,6 @@ export function LoginForm() {
             name="email"
             type="email"
             required
-            defaultValue="admin@ads.local"
             autoComplete="username"
             className="pl-9"
           />
