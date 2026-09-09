@@ -1,7 +1,7 @@
 import { updateInvoiceLine } from "@/actions/invoices";
 import { CompanyBrand } from "@/components/company-brand";
 import { addressLines, bankDetailLines, company } from "@/lib/company";
-import { invoiceTotals } from "@/lib/invoice";
+import { invoiceProfit, invoiceTotals } from "@/lib/invoice";
 import { DEFAULT_GBP_TO_EUR_RATE, formatMoney, type PrintCurrency } from "@/lib/money";
 import { INVOICE_INVALID_UNTIL_PAID_NOTICE, INVOICE_MARGIN_NOTICE, INVOICE_TERMS } from "@/lib/terms";
 import { formatDate } from "@/lib/utils";
@@ -66,6 +66,7 @@ export function InvoiceDocument({
   rate?: number;
 }) {
   const totals = invoiceTotals(invoice);
+  const profit = invoiceProfit(invoice);
   const hasShipping = invoice.shippingCostGbp > 0;
   // Amounts are stored in GBP; EUR is a print-time conversion at the entered rate.
   const money = (gbp: number) => formatMoney(gbp, currency, rate);
@@ -123,7 +124,6 @@ export function InvoiceDocument({
           </div>
         </div>
         <div className="text-sm text-slate-600">
-          {currency === "EUR" ? <div>Exchange rate: 1 GBP = {rate} EUR</div> : null}
           <div>Payment Terms: {invoice.paymentTerms || "Immediate"}</div>
           <div>Warranty Terms: {invoice.warrantyTerms || "3 months"}</div>
         </div>
@@ -137,7 +137,7 @@ export function InvoiceDocument({
           <col className="w-24" />
           <col className="w-24" />
           <col className="w-16" />
-          <col className="w-20" />
+          <col className={editable ? "w-28" : "w-20"} />
           <col className="w-24" />
           {editable ? <col className="w-14" /> : null}
         </colgroup>
@@ -235,6 +235,20 @@ export function InvoiceDocument({
                       className={`${editableCellClass} text-right`}
                     />
                   </div>
+                  {/* What the unit cost us. Editable here so a re-negotiated
+                      buying price can be corrected after the fact, and never
+                      part of the printed table. */}
+                  <div className="no-print mt-0.5 flex items-center justify-end gap-0.5 text-xs text-slate-500">
+                    <span className="uppercase tracking-wide">Cost £</span>
+                    <input
+                      form={`line-${line.id}`}
+                      name="buyPriceGbp"
+                      type="number"
+                      step="0.01"
+                      defaultValue={line.buyPriceGbp ?? 0}
+                      className={`${editableCellClass} text-right`}
+                    />
+                  </div>
                 </td>
                 <td className="py-2 text-right tabular-nums">
                   {money(line.qty * line.unitPriceGbp)}
@@ -254,7 +268,6 @@ export function InvoiceDocument({
                   >
                     <input type="hidden" name="id" value={invoice.id} />
                     <input type="hidden" name="lineId" value={line.id} />
-                    <input type="hidden" name="buyPriceGbp" value={line.buyPriceGbp ?? 0} />
                   </form>
                 </td>
               </tr>
@@ -322,6 +335,46 @@ export function InvoiceDocument({
             <span>Payment Due</span>
             <span>{money(totals.dueGbp)}</span>
           </div>
+          {editable ? (
+            <div className="no-print mt-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-2">
+              <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                Internal · not shown on the invoice
+              </div>
+              <div className="mt-1 flex justify-between py-0.5">
+                <span>Goods sold</span>
+                <span className="tabular-nums">{money(profit.salesGbp)}</span>
+              </div>
+              <div className="flex justify-between py-0.5">
+                <span>Cost of goods</span>
+                <span className="tabular-nums">{money(profit.costGbp)}</span>
+              </div>
+              <div className="mt-1 flex justify-between border-t border-slate-300 py-1 font-semibold">
+                <span>Profit</span>
+                <span
+                  className={`tabular-nums ${
+                    profit.profitGbp < 0 ? "text-red-600" : "text-emerald-700"
+                  }`}
+                >
+                  {money(profit.profitGbp)}
+                  {profit.profitPct === null ? null : (
+                    <span className="ml-1 font-normal text-slate-500">
+                      ({profit.profitPct.toFixed(1)}%)
+                    </span>
+                  )}
+                </span>
+              </div>
+              {profit.costGbp === 0 ? (
+                <p className="mt-1 text-xs text-slate-500">
+                  No buying prices entered yet, so this is not a real profit.
+                </p>
+              ) : null}
+              {hasShipping ? (
+                <p className="mt-1 text-xs text-slate-500">
+                  Excludes the {money(totals.shippingGbp)} shipping charged.
+                </p>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       </div>
 

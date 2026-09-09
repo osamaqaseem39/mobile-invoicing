@@ -1,7 +1,13 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { recordPaymentTx } from "../common/payments";
 import { nextNumberTx } from "../common/numbers";
+import { stockStatusForInvoice } from "../common/invoice";
 import { ApplyRmaCreditDto, CreateRmaDto } from "./dto/rma.dto";
 
 @Injectable()
@@ -162,6 +168,56 @@ export class RmaService {
         }
       }
       return updated;
+    });
+  }
+
+  async deleteRma(id: string) {
+    const rma = await this.prisma.rma.findUnique({
+      where: { id },
+      include: { items: true, invoice: { select: { status: true, lines: true } } },
+    });
+    if (!rma) throw new NotFoundException("RMA not found");
+
+    const payments = await this.prisma.payment.count({ where: { rmaId: id } });
+    if (payments > 0) {
+      throw new ConflictException(
+        "This credit is applied to an invoice — remove those payments before deleting the RMA",
+      );
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      // Creating and processing an RMA pulls units out of the sale (RMA,
+      // FAULTY, or back to IN_STOCK). Deleting it puts each one back on the
+      // invoice it was sold on, as if the return had never been raised.
+      const cancelled = rma.invoice.status === "CANCELLED";
+      for (const item of rma.items) {
+        if (!item.stockUnitId) continue;
+        // A cancelled invoice already released its stock, so there is nothing
+        // to put the unit back onto — it stays available.
+        if (cancelled) {
+          await tx.stockUnit.update({
+            where: { id: item.stockUnitId },
+            data: { status: "IN_STOCK", invoiceId: null, invoiceLineId: null },
+          });
+          continue;
+        }
+        const unit = await tx.stockUnit.findUnique({ where: { id: item.stockUnitId } });
+        if (!unit) continue;
+        const line = rma.invoice.lines.find(
+          (candidate) => unit.imei && candidate.imeis.includes(unit.imei),
+        );
+        await tx.stockUnit.update({
+          where: { id: item.stockUnitId },
+          data: {
+            status: stockStatusForInvoice(rma.invoice.status),
+            invoiceId: rma.invoiceId,
+            invoiceLineId: line?.id ?? unit.invoiceLineId,
+          },
+        });
+      }
+      await tx.rmaItem.deleteMany({ where: { rmaId: id } });
+      await tx.rma.delete({ where: { id } });
+      return { deleted: true };
     });
   }
 }

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import {
   addInvoiceLine,
   createInstallmentPlan,
+  deleteInvoice,
   payInstallment,
   recordInvoicePayment,
   updateInvoiceLineImeis,
@@ -17,6 +18,7 @@ import { InvoiceDocument } from "@/components/invoice-document";
 import { GoodsNotReceivedWarning } from "@/components/goods-not-received-warning";
 import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
+import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { Tabs } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -632,6 +634,24 @@ export default async function InvoiceDetailPage({
           },
         ]}
       />
+      <Card className="no-print border-red-100 dark:border-red-900/40">
+        <h2 className="mb-1 font-medium text-red-700 dark:text-red-400">Delete invoice</h2>
+        <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
+          Removes the invoice with its lines, payments and installments, and releases any
+          stock on it back to inventory. Only possible once its RMAs and shipments are gone.
+        </p>
+        <form action={deleteInvoice}>
+          <input type="hidden" name="id" value={invoice.id} />
+          <ConfirmSubmitButton
+            variant="danger"
+            pendingText="Deleting…"
+            confirmTitle={`Delete invoice ${invoice.invoiceNumber}?`}
+            confirmMessage="Its payments and installments go with it. This cannot be undone."
+          >
+            Delete invoice
+          </ConfirmSubmitButton>
+        </form>
+      </Card>
     </div>
   );
 }

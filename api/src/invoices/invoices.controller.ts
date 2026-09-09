@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { InvoicesService } from "./invoices.service";
 import {
@@ -95,6 +105,11 @@ export class InvoicesController {
   @Post(":id/installments/plan")
   createInstallmentPlan(@Param("id") id: string, @Body() dto: CreateInstallmentPlanDto) {
     return this.invoices.createInstallmentPlan(id, dto);
+  }
+
+  @Delete(":id")
+  remove(@Param("id") id: string) {
+    return this.invoices.deleteInvoice(id);
   }
 
   @Patch(":id/installments/:installmentId/pay")

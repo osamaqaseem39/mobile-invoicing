@@ -1,4 +1,16 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { RmaService } from "./rma.service";
 import { ApplyRmaCreditDto, CreateRmaDto, ProcessRmaDto } from "./dto/rma.dto";
@@ -26,6 +38,11 @@ export class RmaController {
   @Patch(":id")
   process(@Param("id") id: string, @Body() dto: ProcessRmaDto) {
     return this.rma.processRma(id, dto.status);
+  }
+
+  @Delete(":id")
+  remove(@Param("id") id: string) {
+    return this.rma.deleteRma(id);
   }
 
   @Post(":id/credit")

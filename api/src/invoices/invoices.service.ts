@@ -1,8 +1,13 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { nextNumberTx } from "../common/numbers";
 import { rmaRemainingCredit } from "../common/rma";
-import { invoiceTotals } from "../common/invoice";
+import { invoiceTotals, stockStatusForInvoice } from "../common/invoice";
 import { formatMoney, resolvePrintCurrency } from "../common/money";
 import { buildEvenInstallments, recordPaymentTx, updatePaymentTx } from "../common/payments";
 import { MailService } from "../mail/mail.service";
@@ -18,10 +23,6 @@ import {
   UpdateInvoiceShippingDto,
   UpdatePaymentDto,
 } from "./dto/invoice.dto";
-
-function stockStatusForInvoice(status: string) {
-  return status === "PAID" ? "SOLD" : "RESERVED";
-}
 
 type NormalizedInvoiceLine = {
   productName: string;
@@ -500,5 +501,47 @@ export class InvoicesService {
         installmentId,
       }),
     );
+  }
+
+  async deleteInvoice(id: string) {
+    const invoice = await this.prisma.invoice.findUnique({
+      where: { id },
+      include: {
+        stockUnits: true,
+        _count: { select: { rmas: true, appliedCredits: true, shipments: true } },
+      },
+    });
+    if (!invoice) throw new NotFoundException("Invoice not found");
+
+    // These are separate documents that point at this invoice. Removing them
+    // silently would lose real records, so the user has to clear them first.
+    if (invoice._count.rmas > 0) {
+      throw new ConflictException("Delete this invoice's RMAs before deleting the invoice");
+    }
+    if (invoice._count.shipments > 0) {
+      throw new ConflictException("Delete this invoice's shipments before deleting the invoice");
+    }
+    if (invoice._count.appliedCredits > 0) {
+      throw new ConflictException("An RMA credit is applied to this invoice — undo it first");
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      // Same release as cancelling: whatever this invoice held goes back to
+      // available inventory rather than staying tied to a row that is gone.
+      for (const unit of invoice.stockUnits) {
+        await tx.stockUnit.update({
+          where: { id: unit.id },
+          data: { status: "IN_STOCK", invoiceId: null, invoiceLineId: null },
+        });
+      }
+      // Payments hold the only reference to installments, so they go first.
+      // Lines and installments cascade from the invoice, but deleting them
+      // here keeps the order explicit instead of relying on the database.
+      await tx.payment.deleteMany({ where: { invoiceId: id } });
+      await tx.installment.deleteMany({ where: { invoiceId: id } });
+      await tx.invoiceLine.deleteMany({ where: { invoiceId: id } });
+      await tx.invoice.delete({ where: { id } });
+      return { deleted: true };
+    });
   }
 }

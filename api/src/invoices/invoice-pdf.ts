@@ -154,7 +154,6 @@ export function buildInvoicePdf(
     .fillColor("black")
     .text(
       [
-        ...(currency === "EUR" ? [`Exchange rate: 1 GBP = ${rate} EUR`] : []),
         `Payment Terms: ${invoice.paymentTerms || "Immediate"}`,
         `Warranty Terms: ${invoice.warrantyTerms || "3 months"}`,
       ].join("\n"),

@@ -1,5 +1,10 @@
 import { roundMoney } from "./money";
 
+/** The stock status a unit should carry while it sits on an invoice. */
+export function stockStatusForInvoice(status: string) {
+  return status === "PAID" ? "SOLD" : "RESERVED";
+}
+
 export function invoiceTotals(invoice: {
   shippingCostGbp: number;
   paidAmountGbp?: number;

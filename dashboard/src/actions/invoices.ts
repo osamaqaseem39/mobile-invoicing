@@ -375,3 +375,22 @@ export async function updateInvoiceLineImeis(formData: FormData) {
   revalidatePath("/stock");
   redirect(`/invoices/${id}?ok=IMEIs updated`);
 }
+
+export async function deleteInvoice(formData: FormData) {
+  const { apiToken } = await requireUser();
+  const id = String(formData.get("id") ?? "");
+
+  try {
+    await apiClient.delete(`/invoices/${id}`, apiToken);
+  } catch (err) {
+    if (err instanceof ApiError) {
+      if (err.status === 404) redirect("/invoices");
+      redirect(`/invoices/${id}?error=${encodeURIComponent(err.message)}`);
+    }
+    throw err;
+  }
+
+  revalidatePath("/invoices");
+  revalidatePath("/stock");
+  redirect("/invoices?ok=Invoice deleted");
+}

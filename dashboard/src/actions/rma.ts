@@ -153,3 +153,22 @@ export async function processRma(formData: FormData) {
   revalidatePath("/stock");
   redirect(`/returns/${id}?ok=RMA updated`);
 }
+
+export async function deleteRma(formData: FormData) {
+  const { apiToken } = await requireUser();
+  const id = String(formData.get("id") ?? "");
+
+  try {
+    await apiClient.delete(`/rma/${id}`, apiToken);
+  } catch (err) {
+    if (err instanceof ApiError) {
+      if (err.status === 404) redirect("/returns");
+      redirect(`/returns/${id}?error=${encodeURIComponent(err.message)}`);
+    }
+    throw err;
+  }
+
+  revalidatePath("/returns");
+  revalidatePath("/stock");
+  redirect("/returns?ok=RMA deleted");
+}

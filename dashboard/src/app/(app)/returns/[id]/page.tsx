@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { applyRmaCredit, processRma } from "@/actions/rma";
+import { applyRmaCredit, deleteRma, processRma } from "@/actions/rma";
 import { GoodsNotReceivedWarning } from "@/components/goods-not-received-warning";
 import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
 import { Card } from "@/components/ui/card";
+import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
@@ -271,6 +272,24 @@ export default async function RmaDetailPage({
             </Table>
           </div>
         ) : null}
+      </Card>
+      <Card className="no-print border-red-100 dark:border-red-900/40">
+        <h2 className="mb-1 font-medium text-red-700 dark:text-red-400">Delete RMA</h2>
+        <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
+          Puts the returned units back on {rma.invoice.invoiceNumber} as if the return was
+          never raised. Only possible while none of this credit has been applied to an invoice.
+        </p>
+        <form action={deleteRma}>
+          <input type="hidden" name="id" value={rma.id} />
+          <ConfirmSubmitButton
+            variant="danger"
+            pendingText="Deleting…"
+            confirmTitle={`Delete RMA ${rma.rmaNumber}?`}
+            confirmMessage="Its returned items go with it. This cannot be undone."
+          >
+            Delete RMA
+          </ConfirmSubmitButton>
+        </form>
       </Card>
     </div>
   );
