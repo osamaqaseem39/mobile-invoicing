@@ -1,34 +1,30 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 
 /**
- * Hostinger (and other cPanel-style hosts) have very low process/thread
- * ceilings. Prisma's Rust query engine panics with "timer has gone away"
- * when those limits are hit or when a pooled socket dies under PgBouncer.
- * Keep a single connection per Node process.
+ * Hostinger shared hosting has low process/thread limits. Prisma's default
+ * Rust query engine panics there with "timer has gone away" and Passenger
+ * then returns 503. Use the JS/Wasm client engine + pg adapter instead, with
+ * a single pooled connection (also correct for Supabase PgBouncer).
  */
-function databaseUrl(): string | undefined {
+function databaseUrl(): string {
   const raw = process.env.DATABASE_URL;
-  if (!raw) return undefined;
-  try {
-    const url = new URL(raw);
-    if (!url.searchParams.has("connection_limit")) {
-      url.searchParams.set("connection_limit", "1");
-    }
-    if (!url.searchParams.has("pool_timeout")) {
-      url.searchParams.set("pool_timeout", "10");
-    }
-    return url.toString();
-  } catch {
-    return raw;
+  if (!raw) {
+    throw new Error("DATABASE_URL is not set");
   }
+  return raw;
 }
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   constructor() {
-    const url = databaseUrl();
-    super(url ? { datasources: { db: { url } } } : undefined);
+    const adapter = new PrismaPg({
+      connectionString: databaseUrl(),
+      max: 1,
+      idleTimeoutMillis: 10_000,
+    });
+    super({ adapter });
   }
 
   async onModuleInit() {
