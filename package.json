@@ -1,13 +1,10 @@
 {
   "name": "ads-ops",
   "private": true,
-  "workspaces": [
-    "api"
-  ],
   "scripts": {
-    "dev:api": "npm run start:dev -w api",
+    "dev:api": "npm run start:dev --prefix api",
     "dev:dashboard": "npm run dev --prefix dashboard",
-    "build": "npm run build -w api && npm run build --prefix dashboard"
+    "build": "npm run build --prefix api && npm run build --prefix dashboard"
   },
   "overrides": {
     "multer": "2.3.0",
