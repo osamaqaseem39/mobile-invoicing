@@ -13,7 +13,7 @@ export const echoLogic = {
   legalName: "Echo Logic Tech LTD",
   tradingName: "Echo Logic Tech LTD",
   shortName: "Echo Logic",
-  logo: null as string | null,
+  logo: "/echo.jpeg" as string | null,
   ...REGISTRATION,
   address: {
     line1: "51-B Deptford High Street",
@@ -39,7 +39,7 @@ export const atlantic = {
   legalName: "Atlantic Devices Solutions LTD",
   tradingName: "Atlantic Devices Solutions LTD",
   shortName: "Atlantic",
-  logo: "/logo.jpeg" as string | null,
+  logo: "/ads.jpeg" as string | null,
   ...REGISTRATION,
   address: {
     line1: "12-16 Bridge Street",
