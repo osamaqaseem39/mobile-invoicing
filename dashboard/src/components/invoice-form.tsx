@@ -408,8 +408,20 @@ export function InvoiceForm({
         </div>
       </div>
       <div>
-        <Label htmlFor="notes">Notes</Label>
-        <Textarea id="notes" name="notes" />
+        <h2 className="font-medium">Internal notes</h2>
+        <p className="mt-1 mb-3 text-sm text-slate-500 dark:text-slate-400">
+          Admin only — never printed on the invoice or included in the emailed copy. Use it for
+          anything the customer should not see.
+        </p>
+        <Label htmlFor="notes" className="sr-only">
+          Internal notes
+        </Label>
+        <Textarea
+          id="notes"
+          name="notes"
+          rows={3}
+          placeholder="Chased twice on WhatsApp / collecting in person Friday…"
+        />
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Boxes, Clock3, FileText, Layers, Package, Receipt, Truck, Warehouse } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { DashboardGreeting } from "@/components/dashboard-greeting";
 import { MobileListRow } from "@/components/mobile-list-row";
 import { StatCard } from "@/components/stat-card";
 import { StatusBadge } from "@/components/status-badge";
@@ -23,13 +24,6 @@ type PurchaseOrder = { id: string; poNumber: string; status: string; supplier: {
 type Supplier = { ledger: LedgerEntry[] };
 type Shipment = { status: string };
 type StockUnit = { grade: string; status: string };
-
-function greeting() {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 18) return "Good afternoon";
-  return "Good evening";
-}
 
 export default async function DashboardPage() {
   const user = await requireUser();
@@ -71,8 +65,7 @@ export default async function DashboardPage() {
           Dashboard
         </div>
         <h1 className="mt-1 text-title-sm font-bold text-gray-800 dark:text-white/90">
-          {greeting()},{" "}
-          <span className="text-brand-500 dark:text-brand-400">{firstName}</span>
+          <DashboardGreeting firstName={firstName} />
         </h1>
         <p className="mt-1 text-theme-sm text-gray-500 dark:text-gray-400">
           Here&apos;s what&apos;s happening across stock, invoices, and suppliers today.

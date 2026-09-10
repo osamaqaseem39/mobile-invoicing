@@ -4,10 +4,12 @@ import {
   addInvoiceLine,
   createInstallmentPlan,
   deleteInvoice,
+  deleteInvoicePayment,
   payInstallment,
   recordInvoicePayment,
   updateInvoiceLineImeis,
   updateInvoiceMarginVat,
+  updateInvoiceNotes,
   updateInvoicePayments,
   updateInvoiceShipping,
   updateInvoiceStatus,
@@ -191,6 +193,9 @@ export default async function InvoiceDetailPage({
                           <Th>Method</Th>
                           <Th>Via</Th>
                           <Th>Notes</Th>
+                          <Th className="w-10">
+                            <span className="sr-only">Actions</span>
+                          </Th>
                         </tr>
                       </THead>
                       <tbody>
@@ -254,6 +259,25 @@ export default async function InvoiceDetailPage({
                                 defaultValue={payment.notes ?? ""}
                                 className="w-40"
                               />
+                            </Td>
+                            <Td>
+                              <form action={deleteInvoicePayment}>
+                                <input type="hidden" name="id" value={invoice.id} />
+                                <input type="hidden" name="paymentId" value={payment.id} />
+                                <ConfirmSubmitButton
+                                  variant="danger"
+                                  size="sm"
+                                  pendingText="Deleting…"
+                                  confirmTitle={`Delete this ${formatGbp(payment.amountGbp)} payment?`}
+                                  confirmMessage={
+                                    payment.rma
+                                      ? `The credit it used goes back to ${payment.rma.rmaNumber} to spend again.`
+                                      : "The invoice balance goes back up by this amount."
+                                  }
+                                >
+                                  Delete
+                                </ConfirmSubmitButton>
+                              </form>
                             </Td>
                           </tr>
                         ))}
@@ -578,6 +602,36 @@ export default async function InvoiceDetailPage({
                   </form>
                 </Card>
               </div>
+            ),
+          },
+          {
+            id: "notes",
+            label: "Internal notes",
+            content: (
+              <Card className="no-print">
+                <h2 className="mb-3 font-medium">Internal notes</h2>
+                <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
+                  Admin only — never printed on the invoice or included in the emailed copy.
+                </p>
+                <form action={updateInvoiceNotes} className="space-y-3">
+                  <input type="hidden" name="id" value={invoice.id} />
+                  <Label htmlFor="invoice-notes" className="sr-only">
+                    Internal notes
+                  </Label>
+                  <Textarea
+                    id="invoice-notes"
+                    name="notes"
+                    rows={5}
+                    defaultValue={invoice.notes ?? ""}
+                    placeholder="Chased twice on WhatsApp / collecting in person Friday…"
+                  />
+                  <div className="flex justify-end">
+                    <SubmitButton pendingText="Saving…" size="sm">
+                      Save notes
+                    </SubmitButton>
+                  </div>
+                </form>
+              </Card>
             ),
           },
           {

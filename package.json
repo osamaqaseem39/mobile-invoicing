@@ -1,13 +1,21 @@
 {
   "name": "ads-ops",
   "private": true,
-  "workspaces": [
-    "api",
-    "dashboard"
-  ],
   "scripts": {
-    "dev:api": "npm run start:dev -w api",
-    "dev:dashboard": "npm run dev -w dashboard",
-    "build": "npm run build -w api && npm run build -w dashboard"
+    "dev:api": "npm run start:dev --prefix api",
+    "dev:dashboard": "npm run dev --prefix dashboard",
+    "build": "npm run build --prefix api && npm run build --prefix dashboard"
+  },
+  "overrides": {
+    "multer": "2.3.0",
+    "deepmerge-ts": "8.0.2",
+    "nodemailer": "10.0.1",
+    "@vercel/node": {
+      "undici": "6.28.1",
+      "path-to-regexp": "6.3.0"
+    },
+    "@vercel/static-config": {
+      "ajv": "8.20.0"
+    }
   }
 }

@@ -153,6 +153,28 @@ export async function updateInvoiceMarginVat(formData: FormData) {
   redirect(`/invoices/${id}?ok=Margin VAT setting updated`);
 }
 
+// Internal-only note: kept for staff and deliberately never sent to the printed or emailed invoice.
+export async function updateInvoiceNotes(formData: FormData) {
+  const { apiToken } = await requireUser();
+  const id = String(formData.get("id") ?? "");
+
+  try {
+    await apiClient.patch(
+      `/invoices/${id}/notes`,
+      { notes: toOptionalString(formData.get("notes")) ?? null },
+      apiToken,
+    );
+  } catch (err) {
+    if (err instanceof ApiError) {
+      redirect(`/invoices/${id}?error=${encodeURIComponent(err.message)}`);
+    }
+    throw err;
+  }
+
+  revalidatePath(`/invoices/${id}`);
+  redirect(`/invoices/${id}?ok=Internal notes saved`);
+}
+
 export async function updateInvoiceLine(formData: FormData) {
   const { apiToken } = await requireUser();
   const id = String(formData.get("id") ?? "");
@@ -311,6 +333,26 @@ export async function updateInvoicePayments(formData: FormData) {
   redirect(
     `/invoices/${id}?ok=${paymentIds.length === 1 ? "Payment updated" : "Payments updated"}`,
   );
+}
+
+// Deleting the row hands back whatever it consumed — an RMA credit becomes
+// spendable again, and a settled installment goes back to pending.
+export async function deleteInvoicePayment(formData: FormData) {
+  const { apiToken } = await requireUser();
+  const id = String(formData.get("id") ?? "");
+  const paymentId = String(formData.get("paymentId") ?? "");
+
+  try {
+    await apiClient.delete(`/invoices/${id}/payments/${paymentId}`, apiToken);
+  } catch (err) {
+    if (err instanceof ApiError) {
+      redirect(`/invoices/${id}?error=${encodeURIComponent(err.message)}`);
+    }
+    throw err;
+  }
+
+  revalidatePath(`/invoices/${id}`);
+  redirect(`/invoices/${id}?ok=Payment deleted`);
 }
 
 export async function createInstallmentPlan(formData: FormData) {
