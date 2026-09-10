@@ -20,6 +20,7 @@ import {
   UpdateInvoiceLineDto,
   UpdateInvoiceLineImeisDto,
   UpdateInvoiceMarginVatDto,
+  UpdateInvoiceNotesDto,
   UpdateInvoiceShippingDto,
   UpdateInvoiceStatusDto,
   UpdatePaymentDto,
@@ -58,6 +59,11 @@ export class InvoicesController {
   @Patch(":id/margin-vat")
   updateMarginVat(@Param("id") id: string, @Body() dto: UpdateInvoiceMarginVatDto) {
     return this.invoices.updateInvoiceMarginVat(id, dto);
+  }
+
+  @Patch(":id/notes")
+  updateNotes(@Param("id") id: string, @Body() dto: UpdateInvoiceNotesDto) {
+    return this.invoices.updateInvoiceNotes(id, dto);
   }
 
   @Post(":id/lines")
@@ -100,6 +106,11 @@ export class InvoicesController {
     @Body() dto: UpdatePaymentDto,
   ) {
     return this.invoices.updatePayment(id, paymentId, dto);
+  }
+
+  @Delete(":id/payments/:paymentId")
+  deletePayment(@Param("id") id: string, @Param("paymentId") paymentId: string) {
+    return this.invoices.deletePayment(id, paymentId);
   }
 
   @Post(":id/installments/plan")

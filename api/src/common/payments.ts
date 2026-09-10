@@ -189,6 +189,84 @@ export async function updatePaymentTx(
   return { payment: updatedPayment, invoice: updatedInvoice };
 }
 
+/**
+ * Removes a payment and unwinds everything it touched: the invoice's paid total
+ * and status, the installment it settled, and — for an RMA credit — the credit
+ * it consumed, which becomes spendable again.
+ */
+export async function deletePaymentTx(
+  tx: Prisma.TransactionClient,
+  invoiceId: string,
+  paymentId: string,
+) {
+  const payment = await tx.payment.findUnique({ where: { id: paymentId } });
+  if (!payment || payment.invoiceId !== invoiceId) {
+    throw new NotFoundException("Payment not found");
+  }
+
+  const invoice = await tx.invoice.findUnique({
+    where: { id: invoiceId },
+    include: { lines: true },
+  });
+  if (!invoice) throw new NotFoundException("Invoice not found");
+  if (invoice.status === "CANCELLED") {
+    throw new BadRequestException("Cannot delete a payment on a cancelled invoice");
+  }
+
+  await tx.payment.delete({ where: { id: paymentId } });
+
+  // The installment this settled goes back to unpaid so it can be paid again.
+  if (payment.installmentId) {
+    await tx.installment.update({
+      where: { id: payment.installmentId },
+      data: { status: "PENDING" },
+    });
+  }
+
+  const newPaidGbp = roundMoney(invoice.paidAmountGbp - payment.amountGbp);
+  const totals = invoiceTotals({ ...invoice, paidAmountGbp: newPaidGbp });
+  const nextStatus = totals.dueGbp <= 0 ? "PAID" : newPaidGbp > 0 ? "AWAITING_PAYMENT" : "PENDING";
+
+  const updatedInvoice = await tx.invoice.update({
+    where: { id: invoiceId },
+    data: {
+      paidAmountGbp: newPaidGbp,
+      status: nextStatus,
+      paidAt: nextStatus === "PAID" ? (invoice.paidAt ?? new Date()) : null,
+    },
+  });
+
+  if (payment.rmaId) {
+    // The row is already gone, so what is left on the RMA is the new truth.
+    const rma = await tx.rma.findUnique({
+      where: { id: payment.rmaId },
+      include: { items: true, payments: true },
+    });
+    if (rma) {
+      const totalConsumed = roundMoney(
+        rma.payments.reduce((sum, row) => sum + row.amountGbp, 0),
+      );
+      const exhausted = roundMoney(rmaTotals(rma).totalGbp - totalConsumed) <= EPSILON_GBP;
+      const data: Prisma.RmaUpdateInput = {
+        paymentAmountGbp: totalConsumed,
+        paymentType: exhausted ? "APPLIED_TO_INVOICE" : "PENDING",
+        paymentDate: exhausted ? rma.paymentDate : null,
+      };
+      // appliedInvoiceId points at the last invoice the credit was spent on;
+      // it is stale once none of this credit sits on that invoice any more.
+      if (
+        rma.appliedInvoiceId === invoiceId &&
+        !rma.payments.some((row) => row.invoiceId === invoiceId)
+      ) {
+        data.appliedInvoice = { disconnect: true };
+      }
+      await tx.rma.update({ where: { id: payment.rmaId }, data });
+    }
+  }
+
+  return { invoice: updatedInvoice };
+}
+
 export function buildEvenInstallments(
   remainingGbp: number,
   count: number,

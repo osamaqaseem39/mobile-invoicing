@@ -9,7 +9,12 @@ import { nextNumberTx } from "../common/numbers";
 import { rmaRemainingCredit } from "../common/rma";
 import { invoiceTotals, stockStatusForInvoice } from "../common/invoice";
 import { formatMoney, resolvePrintCurrency } from "../common/money";
-import { buildEvenInstallments, recordPaymentTx, updatePaymentTx } from "../common/payments";
+import {
+  buildEvenInstallments,
+  deletePaymentTx,
+  recordPaymentTx,
+  updatePaymentTx,
+} from "../common/payments";
 import { MailService } from "../mail/mail.service";
 import { buildInvoicePdf } from "./invoice-pdf";
 import {
@@ -20,6 +25,7 @@ import {
   SendInvoiceEmailDto,
   UpdateInvoiceLineDto,
   UpdateInvoiceMarginVatDto,
+  UpdateInvoiceNotesDto,
   UpdateInvoiceShippingDto,
   UpdatePaymentDto,
 } from "./dto/invoice.dto";
@@ -283,6 +289,16 @@ export class InvoicesService {
     });
   }
 
+  async updateInvoiceNotes(id: string, dto: UpdateInvoiceNotesDto) {
+    const invoice = await this.prisma.invoice.findUnique({ where: { id } });
+    if (!invoice) throw new NotFoundException("Invoice not found");
+
+    return this.prisma.invoice.update({
+      where: { id },
+      data: { notes: dto.notes?.toString().trim() || null },
+    });
+  }
+
   async addInvoiceLine(invoiceId: string, dto: UpdateInvoiceLineDto) {
     const invoice = await this.prisma.invoice.findUnique({ where: { id: invoiceId } });
     if (!invoice) throw new NotFoundException("Invoice not found");
@@ -445,6 +461,10 @@ export class InvoicesService {
         paidAt: dto.paidAt ? new Date(dto.paidAt) : undefined,
       }),
     );
+  }
+
+  async deletePayment(invoiceId: string, paymentId: string) {
+    return this.prisma.$transaction((tx) => deletePaymentTx(tx, invoiceId, paymentId));
   }
 
   async createInstallmentPlan(invoiceId: string, dto: CreateInstallmentPlanDto) {

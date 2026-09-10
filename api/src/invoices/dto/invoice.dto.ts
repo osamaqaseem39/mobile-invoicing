@@ -148,6 +148,13 @@ export class UpdateInvoiceMarginVatDto {
   marginVatScheme: boolean;
 }
 
+/** Internal note kept for staff — never rendered on the printed or emailed invoice. */
+export class UpdateInvoiceNotesDto {
+  @IsOptional()
+  @IsString()
+  notes?: string | null;
+}
+
 export class UpdateInvoiceLineImeisDto {
   @IsArray()
   @IsString({ each: true })
