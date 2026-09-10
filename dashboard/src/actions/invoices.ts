@@ -64,6 +64,8 @@ export async function createInvoice(formData: FormData) {
         warrantyTerms: toOptionalString(formData.get("warrantyTerms")),
         notes: toOptionalString(formData.get("notes")),
         marginVatScheme: formData.get("marginVatScheme") === "on",
+        printCurrency: formData.get("printCurrency") === "EUR" ? "EUR" : "GBP",
+        fxRate: toOptionalNumber(formData.get("fxRate")),
         appliedRmaCredits,
         initialPaymentGbp: toOptionalNumber(formData.get("initialPaymentGbp")),
         installmentCount:

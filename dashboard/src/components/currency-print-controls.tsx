@@ -8,8 +8,9 @@ import { Select } from "@/components/ui/select";
 import { DEFAULT_GBP_TO_EUR_RATE, type PrintCurrency } from "@/lib/money";
 
 /**
- * Print-time currency switch. Invoices are always stored in GBP; picking EUR
- * re-renders the document with every amount converted at the entered rate.
+ * Print-time currency override. Invoices are issued in a currency at creation
+ * and stored in GBP; switching here re-renders the document under the other
+ * entity, with every amount converted at the entered rate.
  */
 export function CurrencyPrintControls({
   currency,
@@ -25,9 +26,11 @@ export function CurrencyPrintControls({
   const [rateInput, setRateInput] = useState(String(rate));
 
   const apply = (nextCurrency: PrintCurrency, nextRate: string) => {
-    const params = new URLSearchParams();
+    // Currency is always pinned in the URL: without it the page falls back to
+    // the currency the invoice was issued in, so a EUR invoice could never be
+    // switched back to GBP.
+    const params = new URLSearchParams({ currency: nextCurrency });
     if (nextCurrency === "EUR") {
-      params.set("currency", "EUR");
       const parsed = Number(nextRate);
       params.set("rate", String(parsed > 0 ? parsed : DEFAULT_GBP_TO_EUR_RATE));
     }

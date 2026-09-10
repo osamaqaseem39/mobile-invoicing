@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { GoodsNotReceivedWarning } from "@/components/goods-not-received-warning";
 import { Textarea } from "@/components/ui/textarea";
-import { formatGbp } from "@/lib/money";
+import { DEFAULT_GBP_TO_EUR_RATE, formatGbp, type PrintCurrency } from "@/lib/money";
 import { rmaCreditSummary, rmaGoodsReceived } from "@/lib/rma";
 
 type Lookup = { id: string; name?: string; code?: string };
@@ -201,6 +201,7 @@ export function InvoiceForm({
   const [credits, setCredits] = useState<AvailableRmaCredit[]>([]);
   const [selectedCreditIds, setSelectedCreditIds] = useState<string[]>([]);
   const [installmentPlanEnabled, setInstallmentPlanEnabled] = useState(false);
+  const [printCurrency, setPrintCurrency] = useState<PrintCurrency>("GBP");
 
   return (
     <div className="space-y-6">
@@ -273,6 +274,42 @@ export function InvoiceForm({
           })}
         </div>
       ) : null}
+      <div className="space-y-3 rounded-xl border border-slate-200 p-4 dark:border-slate-800">
+        <h2 className="font-medium">Invoice currency</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div>
+            <Label htmlFor="printCurrency">Issue this invoice in</Label>
+            <Select
+              id="printCurrency"
+              name="printCurrency"
+              value={printCurrency}
+              onChange={(event) => setPrintCurrency(event.target.value as PrintCurrency)}
+            >
+              <option value="GBP">GBP — £ (Echo Logic Tech LTD)</option>
+              <option value="EUR">EUR — € (Atlantic Devices Solutions LTD)</option>
+            </Select>
+          </div>
+          {printCurrency === "EUR" ? (
+            <div>
+              <Label htmlFor="fxRate">Exchange rate (1 GBP = ? EUR)</Label>
+              <Input
+                id="fxRate"
+                name="fxRate"
+                type="number"
+                step="0.0001"
+                min={0.0001}
+                defaultValue={DEFAULT_GBP_TO_EUR_RATE}
+              />
+            </div>
+          ) : null}
+        </div>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          {printCurrency === "EUR"
+            ? "Prices below are still entered in GBP. The printed invoice is issued by Atlantic Devices Solutions LTD (Belfast), shows the Wise EUR account, and converts every amount at the rate above."
+            : "The printed invoice is issued by Echo Logic Tech LTD (51-B Deptford High Street, SE8 4AD) and shows its Tide account for payment."}
+        </p>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <Label htmlFor="status">Payment status</Label>

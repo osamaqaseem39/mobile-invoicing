@@ -1,5 +1,5 @@
 import PDFDocument from "pdfkit";
-import { bankDetailLines, company, companyAddressLines } from "../common/company";
+import { bankDetailLines, companyForCurrency, companyAddressLines } from "../common/company";
 import { DEFAULT_GBP_TO_EUR_RATE, formatMoney, type PrintCurrency } from "../common/money";
 import { formatDate, labelStatus } from "../common/status";
 import { invoiceTotals } from "../common/invoice";
@@ -55,6 +55,7 @@ export function buildInvoicePdf(
 ): Promise<Buffer> {
   const currency = options.currency ?? "GBP";
   const rate = options.rate && options.rate > 0 ? options.rate : DEFAULT_GBP_TO_EUR_RATE;
+  const seller = companyForCurrency(currency);
   const money = (gbp: number) => formatMoney(gbp, currency, rate);
   const doc = new PDFDocument({ size: "A4", margin: MARGIN });
   const chunks: Buffer[] = [];
@@ -67,12 +68,12 @@ export function buildInvoicePdf(
   const contentWidth = PAGE_WIDTH - MARGIN * 2;
   const totals = invoiceTotals(invoice);
 
-  doc.font("Helvetica-Bold").fontSize(16).text(company.tradingName, MARGIN, MARGIN);
+  doc.font("Helvetica-Bold").fontSize(16).text(seller.tradingName, MARGIN, MARGIN);
   doc
     .font("Helvetica")
     .fontSize(9)
     .text(
-      `${companyAddressLines().join(", ")}\nTelephone: ${company.phoneDisplay} · Whatsapp: ${company.whatsappDisplay}`,
+      `${companyAddressLines(seller).join(", ")}\nTelephone: ${seller.phoneDisplay} · Whatsapp: ${seller.whatsappDisplay}`,
       { width: contentWidth * 0.6 },
     );
 
@@ -253,7 +254,7 @@ export function buildInvoicePdf(
     .fontSize(9)
     .text(
       [
-        ...bankDetailLines(currency),
+        ...bankDetailLines(seller),
         "",
         `Payment Reference: ${invoice.invoiceNumber}`,
         `You must enter ${invoice.invoiceNumber} as your payment reference.`,
@@ -316,7 +317,7 @@ export function buildInvoicePdf(
   doc.moveDown(0.8);
   doc
     .fontSize(7.5)
-    .text(`Company Registration number: ${company.companyNo}\nEORI Number: ${company.eoriNumber}`, MARGIN, doc.y, {
+    .text(`Company Registration number: ${seller.companyNo}\nEORI Number: ${seller.eoriNumber}`, MARGIN, doc.y, {
       width: contentWidth,
     });
 

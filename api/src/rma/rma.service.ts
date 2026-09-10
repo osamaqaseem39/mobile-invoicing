@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { recordPaymentTx } from "../common/payments";
-import { nextNumberTx } from "../common/numbers";
+import { nextDocumentNumberTx } from "../common/numbers";
 import { stockStatusForInvoice } from "../common/invoice";
 import { ApplyRmaCreditDto, CreateRmaDto } from "./dto/rma.dto";
 
@@ -65,7 +65,8 @@ export class RmaService {
     const itemByUnitId = new Map(items.map((item) => [item.stockUnitId, item]));
 
     return this.prisma.$transaction(async (tx) => {
-      const rmaNumber = await nextNumberTx(tx, "RMA_UK", "", "");
+      // A credit note belongs to the same region, and series, as its invoice.
+      const rmaNumber = await nextDocumentNumberTx(tx, "RMA", invoice.printCurrency);
       const created = await tx.rma.create({
         data: {
           rmaNumber,

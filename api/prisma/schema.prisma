@@ -151,6 +151,10 @@ model Invoice {
   paymentTerms    String?       @default("Immediate")
   warrantyTerms   String?       @default("3 months")
   marginVatScheme Boolean       @default(true)
+  // Amounts are always stored in GBP. These two pick which entity issues the
+  // document and, for EUR, the rate its printed amounts are converted at.
+  printCurrency   String        @default("GBP")
+  fxRate          Float         @default(1.15)
   paidAmountGbp   Float         @default(0)
   notes           String?
   issuedAt        DateTime      @default(now())

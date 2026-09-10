@@ -18,11 +18,7 @@ export default async function InvoicePrintPage({
   const { apiToken } = await requireUser();
   const { id } = await params;
   const { ok, error, currency: currencyParam, rate: rateParam } = await searchParams;
-  const currency: PrintCurrency = currencyParam === "EUR" ? "EUR" : "GBP";
-  const rate = Number(rateParam) > 0 ? Number(rateParam) : DEFAULT_GBP_TO_EUR_RATE;
   const printPath = `/invoices/${id}/print`;
-  // Keep the chosen currency on the page after the email action redirects back.
-  const returnTo = currency === "EUR" ? `${printPath}?currency=EUR&rate=${rate}` : printPath;
   let invoice: InvoiceDoc;
   try {
     invoice = await apiClient.get<InvoiceDoc>(`/invoices/${id}`, apiToken);
@@ -30,6 +26,20 @@ export default async function InvoicePrintPage({
     if (err instanceof ApiError && err.status === 404) notFound();
     throw err;
   }
+
+  // The invoice was issued in a currency at creation; the query params are a
+  // per-view override for reprinting the same invoice the other way round.
+  const issuedCurrency: PrintCurrency = invoice.printCurrency === "EUR" ? "EUR" : "GBP";
+  const issuedRate =
+    invoice.fxRate && invoice.fxRate > 0 ? invoice.fxRate : DEFAULT_GBP_TO_EUR_RATE;
+  const currency: PrintCurrency = currencyParam
+    ? currencyParam === "EUR"
+      ? "EUR"
+      : "GBP"
+    : issuedCurrency;
+  const rate = Number(rateParam) > 0 ? Number(rateParam) : issuedRate;
+  // Keep the chosen currency on the page after the email action redirects back.
+  const returnTo = `${printPath}?currency=${currency}${currency === "EUR" ? `&rate=${rate}` : ""}`;
 
   return (
     <div>

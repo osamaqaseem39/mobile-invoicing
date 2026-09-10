@@ -4,8 +4,9 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import type { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
-import { nextNumberTx } from "../common/numbers";
+import { nextDocumentNumberTx } from "../common/numbers";
 import { rmaRemainingCredit } from "../common/rma";
 import { invoiceTotals, stockStatusForInvoice } from "../common/invoice";
 import { formatMoney, resolvePrintCurrency } from "../common/money";
@@ -71,9 +72,14 @@ export class InvoicesService {
     private mail: MailService,
   ) {}
 
-  listInvoices(status?: string) {
+  // `currency` doubles as the region filter: GBP invoices are the UK series,
+  // EUR the Europe one.
+  listInvoices(status?: string, currency?: string) {
+    const where: Prisma.InvoiceWhereInput = {};
+    if (status) where.status = status;
+    if (currency === "GBP" || currency === "EUR") where.printCurrency = currency;
     return this.prisma.invoice.findMany({
-      where: status ? { status } : undefined,
+      where,
       include: { customer: true, lines: true },
       orderBy: { createdAt: "desc" },
     });
@@ -102,6 +108,9 @@ export class InvoicesService {
     const customerId = input.customerId;
     const status = input.status ?? "PENDING";
     const lines = normalizeLines(input.lines ?? []);
+    // Locked in at creation: the invoice keeps issuing under the same entity
+    // and rate however long after it is reprinted.
+    const { currency, rate } = resolvePrintCurrency(input.printCurrency, input.fxRate);
 
     if (!customerId) throw new BadRequestException("Select a customer");
     if (!lines.length) throw new BadRequestException("Add at least one line");
@@ -128,7 +137,7 @@ export class InvoicesService {
       : [];
 
     return this.prisma.$transaction(async (tx) => {
-      const invoiceNumber = await nextNumberTx(tx, "INV_UK", "", "");
+      const invoiceNumber = await nextDocumentNumberTx(tx, "INV", currency);
       const created = await tx.invoice.create({
         data: {
           invoiceNumber,
@@ -139,6 +148,8 @@ export class InvoicesService {
           paymentTerms: input.paymentTerms ?? "Immediate",
           warrantyTerms: input.warrantyTerms ?? "3 months",
           marginVatScheme: input.marginVatScheme ?? true,
+          printCurrency: currency,
+          fxRate: rate,
           notes: input.notes ?? null,
           paidAt: status === "PAID" ? new Date() : null,
           lines: {
@@ -408,7 +419,11 @@ export class InvoicesService {
       );
     }
 
-    const { currency, rate } = resolvePrintCurrency(dto.currency, dto.rate);
+    // The invoice was issued in a currency; the email only overrides it when asked.
+    const { currency, rate } = resolvePrintCurrency(
+      dto.currency ?? invoice.printCurrency,
+      dto.rate ?? invoice.fxRate,
+    );
     const pdf = await buildInvoicePdf(invoice, { currency, rate });
     const totals = invoiceTotals(invoice);
     const money = (gbp: number) => formatMoney(gbp, currency, rate);

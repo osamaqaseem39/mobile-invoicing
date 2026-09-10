@@ -90,6 +90,17 @@ export class CreateInvoiceDto {
   @IsBoolean()
   marginVatScheme?: boolean;
 
+  /** Currency the invoice is issued in; picks the letterhead and bank block. */
+  @IsOptional()
+  @IsIn(["GBP", "EUR"])
+  printCurrency?: "GBP" | "EUR";
+
+  /** GBP -> EUR rate locked in at creation, used only when printCurrency is EUR. */
+  @IsOptional()
+  @IsNumber()
+  @Min(0.0001)
+  fxRate?: number;
+
   @IsOptional()
   @IsArray()
   @IsString({ each: true })

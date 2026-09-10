@@ -1,6 +1,6 @@
 import { updateInvoiceLine } from "@/actions/invoices";
 import { CompanyBrand } from "@/components/company-brand";
-import { addressLines, bankDetailLines, company } from "@/lib/company";
+import { addressLines, bankDetailLines, companyForCurrency } from "@/lib/company";
 import { invoiceProfit, invoiceTotals } from "@/lib/invoice";
 import { DEFAULT_GBP_TO_EUR_RATE, formatMoney, type PrintCurrency } from "@/lib/money";
 import { INVOICE_INVALID_UNTIL_PAID_NOTICE, INVOICE_MARGIN_NOTICE, INVOICE_TERMS } from "@/lib/terms";
@@ -17,6 +17,8 @@ export type InvoiceDoc = {
   paymentTerms: string | null;
   warrantyTerms: string | null;
   marginVatScheme: boolean;
+  printCurrency?: string;
+  fxRate?: number;
   paidAmountGbp: number;
   notes: string | null;
   customer: {
@@ -65,8 +67,8 @@ export function InvoiceDocument({
   invoice,
   editable = false,
   lookups,
-  currency = "GBP",
-  rate = DEFAULT_GBP_TO_EUR_RATE,
+  currency: currencyProp,
+  rate: rateProp,
 }: {
   invoice: InvoiceDoc;
   editable?: boolean;
@@ -74,6 +76,12 @@ export function InvoiceDocument({
   currency?: PrintCurrency;
   rate?: number;
 }) {
+  // The invoice carries the currency it was issued in; the props only override
+  // that when someone switches currency on the print page.
+  const currency: PrintCurrency = currencyProp ?? (invoice.printCurrency === "EUR" ? "EUR" : "GBP");
+  const storedRate = invoice.fxRate && invoice.fxRate > 0 ? invoice.fxRate : DEFAULT_GBP_TO_EUR_RATE;
+  const rate = rateProp && rateProp > 0 ? rateProp : storedRate;
+  const seller = companyForCurrency(currency);
   const totals = invoiceTotals(invoice);
   const profit = invoiceProfit(invoice);
   const hasShipping = invoice.shippingCostGbp > 0;
@@ -84,11 +92,11 @@ export function InvoiceDocument({
     <div className="mx-auto max-w-[210mm] bg-white p-8 text-slate-900 print:p-0">
       <div className="flex flex-col gap-6 border-b border-slate-200 pb-6 sm:flex-row sm:justify-between">
         <div>
-          <CompanyBrand company={company} />
+          <CompanyBrand company={seller} />
           <p className="mt-2 text-sm text-slate-600">
-            {addressLines(company).join(", ")}
+            {addressLines(seller).join(", ")}
             <br />
-            Telephone: {company.phoneDisplay} · Whatsapp: {company.whatsappDisplay}
+            Telephone: {seller.phoneDisplay} · Whatsapp: {seller.whatsappDisplay}
           </p>
         </div>
         <div className="text-right">
@@ -324,7 +332,7 @@ export function InvoiceDocument({
       <div className="mt-6 flex flex-wrap justify-between gap-6">
         <div className="max-w-sm text-sm text-slate-600">
           <div className="text-xs uppercase tracking-wide text-slate-500">Bank details</div>
-          {bankDetailLines(currency).map((line) => (
+          {bankDetailLines(seller).map((line) => (
             <div key={line}>{line}</div>
           ))}
           <div className="mt-2">
@@ -416,9 +424,9 @@ export function InvoiceDocument({
           ))}
         </ol>
         <p className="mt-6">
-          Company Registration number: {company.companyNo}
+          Company Registration number: {seller.companyNo}
           <br />
-          EORI Number: {company.eoriNumber}
+          EORI Number: {seller.eoriNumber}
         </p>
       </div>
     </div>

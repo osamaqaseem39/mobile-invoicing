@@ -32,8 +32,8 @@ export class InvoicesController {
   constructor(private invoices: InvoicesService) {}
 
   @Get()
-  findAll(@Query("status") status?: string) {
-    return this.invoices.listInvoices(status);
+  findAll(@Query("status") status?: string, @Query("currency") currency?: string) {
+    return this.invoices.listInvoices(status, currency);
   }
 
   @Get(":id")

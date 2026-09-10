@@ -1,6 +1,6 @@
 import { CompanyBrand } from "@/components/company-brand";
-import { addressLines, company } from "@/lib/company";
-import { formatGbp } from "@/lib/money";
+import { addressLines, companyForCurrency } from "@/lib/company";
+import { DEFAULT_GBP_TO_EUR_RATE, formatMoney, type PrintCurrency } from "@/lib/money";
 import { groupRmaSummary, rmaCreditSummary } from "@/lib/rma";
 import { labelStatus } from "@/lib/status";
 import { RMA_TERMS } from "@/lib/terms";
@@ -14,7 +14,7 @@ export type CreditNoteDoc = {
   paymentDate: Date | string | null;
   paymentAmountGbp: number;
   notes: string | null;
-  invoice: { invoiceNumber: string };
+  invoice: { invoiceNumber: string; printCurrency?: string; fxRate?: number };
   appliedInvoice: { invoiceNumber: string } | null;
   payments: {
     id: string;
@@ -50,16 +50,20 @@ export type CreditNoteDoc = {
 };
 
 export function CreditNoteDocument({ rma }: { rma: CreditNoteDoc }) {
+  // A credit note is issued by -- and priced like -- the invoice it returns against.
+  const currency: PrintCurrency = rma.invoice.printCurrency === "EUR" ? "EUR" : "GBP";
+  const rate = rma.invoice.fxRate && rma.invoice.fxRate > 0 ? rma.invoice.fxRate : DEFAULT_GBP_TO_EUR_RATE;
+  const seller = companyForCurrency(currency);
   const credit = rmaCreditSummary(rma);
   const summary = groupRmaSummary(rma.items);
-  const money = formatGbp;
+  const money = (gbp: number) => formatMoney(gbp, currency, rate);
 
   return (
     <div className="mx-auto max-w-[210mm] bg-white p-8 text-slate-900 print:p-0">
       <div className="flex flex-col gap-6 border-b border-slate-200 pb-6 sm:flex-row sm:justify-between">
         <div>
-          <CompanyBrand company={company} />
-          <p className="mt-2 text-sm text-slate-600">{addressLines(company).join(", ")}</p>
+          <CompanyBrand company={seller} />
+          <p className="mt-2 text-sm text-slate-600">{addressLines(seller).join(", ")}</p>
         </div>
         <div className="text-right">
           <div className="text-3xl font-semibold">CREDIT NOTE</div>
@@ -194,9 +198,9 @@ export function CreditNoteDocument({ rma }: { rma: CreditNoteDoc }) {
           ))}
         </ol>
         <p className="mt-6">
-          Company Registration number: {company.companyNo}
+          Company Registration number: {seller.companyNo}
           <br />
-          EORI Number: {company.eoriNumber}
+          EORI Number: {seller.eoriNumber}
         </p>
       </div>
     </div>

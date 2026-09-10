@@ -25,11 +25,14 @@ type InvoiceRow = {
 export default async function InvoicesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; currency?: string }>;
 }) {
   const { apiToken } = await requireUser();
-  const { status } = await searchParams;
-  const query = status ? `?${new URLSearchParams({ status })}` : "";
+  const { status, currency } = await searchParams;
+  const params = new URLSearchParams();
+  if (status) params.set("status", status);
+  if (currency) params.set("currency", currency);
+  const query = params.toString() ? `?${params}` : "";
   const invoices = await apiClient.get<InvoiceRow[]>(`/invoices${query}`, apiToken);
 
   return (
@@ -39,7 +42,7 @@ export default async function InvoicesPage({
         description="Pending, awaiting payment, and paid."
         action={{ href: "/invoices/new", label: "Create invoice" }}
       />
-      <form className="mb-4">
+      <form className="mb-4 flex flex-wrap items-center gap-2">
         <Select name="status" defaultValue={status ?? ""} className="w-56">
           <option value="">All statuses</option>
           <option value="PENDING">Pending</option>
@@ -47,7 +50,14 @@ export default async function InvoicesPage({
           <option value="PAID">Paid</option>
           <option value="CANCELLED">Cancelled</option>
         </Select>
-        <button className="ml-2 h-11 rounded-lg border border-gray-300 bg-white px-4 text-theme-sm font-medium text-gray-700 shadow-theme-xs transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]">
+        {/* Region and currency are the same thing here: the UK series is GBP
+            and numbered 0012, the Europe series EUR and numbered N0012. */}
+        <Select name="currency" defaultValue={currency ?? ""} className="w-56">
+          <option value="">All regions</option>
+          <option value="GBP">UK — £ (0012…)</option>
+          <option value="EUR">Europe — € (N0012…)</option>
+        </Select>
+        <button className="h-11 rounded-lg border border-gray-300 bg-white px-4 text-theme-sm font-medium text-gray-700 shadow-theme-xs transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]">
           Filter
         </button>
       </form>
