@@ -46,6 +46,15 @@ export type InvoiceDoc = {
 const editableCellClass =
   "w-full min-w-0 rounded border border-transparent bg-transparent px-1 py-0.5 outline-none transition hover:border-slate-200 hover:bg-slate-50 focus:border-[#0b3a6e] focus:bg-white focus:ring-2 focus:ring-[#0b3a6e]/10";
 
+// The £ sign and its number read as one field: the box, hover and focus ring
+// live on the wrapper, and the input itself is bare and sized to its digits.
+const moneyFieldClass =
+  "flex items-center justify-end gap-1 rounded border border-transparent px-1 py-0.5 transition hover:border-slate-200 hover:bg-slate-50 focus-within:border-[#0b3a6e] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#0b3a6e]/10";
+
+// Spinners are suppressed — at this width the arrows crowd out the digits.
+const moneyInputClass =
+  "w-16 min-w-0 border-0 bg-transparent p-0 text-right tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
+
 export type InvoiceDocLookups = {
   colors: { id: string; name: string }[];
   networks: { id: string; name: string }[];
@@ -137,7 +146,7 @@ export function InvoiceDocument({
           <col className="w-24" />
           <col className="w-24" />
           <col className="w-16" />
-          <col className={editable ? "w-28" : "w-20"} />
+          <col className={editable ? "w-32" : "w-20"} />
           <col className="w-24" />
           {editable ? <col className="w-14" /> : null}
         </colgroup>
@@ -223,32 +232,38 @@ export function InvoiceDocument({
                     </datalist>
                   ) : null}
                 </td>
-                <td className="py-1 pr-2 text-right tabular-nums">
-                  <div className="flex items-center justify-end gap-0.5">
-                    <span className="text-slate-500">£</span>
+                <td className="py-1 pr-2">
+                  <label className={moneyFieldClass}>
+                    <span className="shrink-0 text-slate-400">£</span>
                     <input
                       form={`line-${line.id}`}
                       name="unitPriceGbp"
                       type="number"
                       step="0.01"
                       defaultValue={line.unitPriceGbp}
-                      className={`${editableCellClass} text-right`}
+                      className={moneyInputClass}
                     />
-                  </div>
+                  </label>
                   {/* What the unit cost us. Editable here so a re-negotiated
                       buying price can be corrected after the fact, and never
                       part of the printed table. */}
-                  <div className="no-print mt-0.5 flex items-center justify-end gap-0.5 text-xs text-slate-500">
-                    <span className="uppercase tracking-wide">Cost £</span>
+                  <label
+                    className={`no-print mt-0.5 text-xs text-slate-500 ${moneyFieldClass}`}
+                    title="What this unit cost us — never printed"
+                  >
+                    <span className="shrink-0 uppercase tracking-wide text-[10px] text-slate-400">
+                      Cost
+                    </span>
+                    <span className="shrink-0 text-slate-400">£</span>
                     <input
                       form={`line-${line.id}`}
                       name="buyPriceGbp"
                       type="number"
                       step="0.01"
                       defaultValue={line.buyPriceGbp ?? 0}
-                      className={`${editableCellClass} text-right`}
+                      className={moneyInputClass}
                     />
-                  </div>
+                  </label>
                 </td>
                 <td className="py-2 text-right tabular-nums">
                   {money(line.qty * line.unitPriceGbp)}
